@@ -1608,12 +1608,13 @@ function montarCadeia(ag, msgs) {
     // PDFs e outros arquivos → hoje só o Gemini lê nativamente
     if (keyGemini) return ['gemini'];
   }
-  // TEXTO → cadeia global (GLM primeiro)
+  // TEXTO → No navegador (China), priorizar o que responde rápido SEM VPN:
+  // GLM e DeepSeek são acessíveis localmente; Gemini/OpenAI/Claude só como reserva
+  // (podem "pendurar" a conexão sem VPN e travar a resposta).
+  const ordemChina = ['glm', 'deepseek', 'gemini', 'openai'];
   const cadeia = [];
-  // Preferência do agente por Claude (raciocínio C-Level) entra na frente quando há chave
-  if (ag.modelo === 'claude' && keyClaude) cadeia.push('claude');
-  // Ordem global de resiliência definida pelo dono, pulando os que não têm chave
-  for (const p of PROVIDER_ORDER) if (!cadeia.includes(p) && keyDe(p)) cadeia.push(p);
+  for (const p of ordemChina) if (keyDe(p)) cadeia.push(p);
+  if (ag.modelo === 'claude' && keyClaude && !cadeia.includes('claude')) cadeia.push('claude');
   return cadeia;
 }
 
