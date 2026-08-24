@@ -11,8 +11,10 @@ const {
   SUPABASE_URL, SUPABASE_SERVICE_ROLE,
   GLM_KEY, GEMINI_KEY, DEEPSEEK_KEY,
   TELEGRAM_TOKEN, TELEGRAM_CHAT,
-  RESEND_KEY, RESEND_FROM
+  RESEND_KEY, RESEND_FROM,
+  GH_PAT, GITHUB_OWNER
 } = process.env;
+const GH_OWNER = GITHUB_OWNER || 'Cleberamonjr';
 
 const MAX_TAREFAS = Number(process.env.MAX_TAREFAS || 6);
 const cfg = JSON.parse(fs.readFileSync(new URL('./agents.json', import.meta.url)));
@@ -103,7 +105,10 @@ for (const t of (Array.isArray(pend) ? pend : [])) {
       const objetivo = t.payload?.objetivo || t.payload?.texto || JSON.stringify(t.payload || {});
       const sys = `Você é a ZANKA, CEO e orquestradora. Quebre o OBJETIVO em sub-tarefas e delegue ao agente certo. `
         + `Responda APENAS JSON válido, sem markdown: {"plano":[{"agente":"id","acao":"nome_curto","payload":{}}]}. `
-        + `Use só ids do elenco. 2 a 5 sub-tarefas. Não invente dados.\n\nELENCO:\n${ELENCO}` + await memoria('zanka', projeto);
+        + `Use só ids do elenco. 2 a 5 sub-tarefas. Não invente dados.\n`
+        + `AÇÕES REAIS disponíveis (use quando fizer sentido): enviar_email (payload: para, assunto, corpo — pede aprovação), `
+        + `github_ler (payload: repo, path — livre), github_alterar (payload: repo, path, conteudo, mensagem — pede aprovação). `
+        + `Delegue github_* ao hector.\n\nELENCO:\n${ELENCO}` + await memoria('zanka', projeto);
       const { texto, provider } = await chamarLLM('zanka', sys, `OBJETIVO: ${objetivo}`);
       let plano = [];
       try { plano = JSON.parse(texto.slice(texto.indexOf('{'), texto.lastIndexOf('}') + 1)).plano || []; } catch {}
@@ -137,6 +142,54 @@ for (const t of (Array.isArray(pend) ? pend : [])) {
       await sb(`tarefas?id=eq.${t.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'feito', resultado: { enviado: true, id: d.id, para: p.para } }) });
       await sb('eventos', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ agente: t.agente || 'aninha', tipo: 'acao', mensagem: `e-mail enviado para ${p.para}`, tarefa_id: t.id }) });
       resultados.push({ id: t.id, agente: t.agente || 'aninha', acao: 'enviar_email', status: 'feito', para: p.para });
+      continue;
+    }
+
+    // ── GITHUB: LER (livre, sem aprovação) ──
+    if (t.acao === 'github_ler') {
+      if (!GH_PAT || String(GH_PAT).startsWith('COLE')) throw new Error('GH_PAT nao configurado nos secrets');
+      const p = t.payload || {};
+      const repo = p.repo; const caminho = p.path || p.caminho || '';
+      const gr = await fetch(`https://api.github.com/repos/${GH_OWNER}/${repo}/contents/${caminho}${p.branch ? '?ref=' + p.branch : ''}`,
+        { headers: { Authorization: `Bearer ${GH_PAT}`, Accept: 'application/vnd.github+json', 'User-Agent': 'zanka-worker' } });
+      const gd = await gr.json();
+      if (!gr.ok) throw new Error('GitHub ' + gr.status + ': ' + JSON.stringify(gd).slice(0, 150));
+      let conteudo;
+      if (Array.isArray(gd)) conteudo = gd.map(x => `${x.type}: ${x.name}`).join('\n'); // diretório
+      else if (gd.content) conteudo = Buffer.from(gd.content, 'base64').toString('utf-8').slice(0, 4000); // arquivo
+      else conteudo = JSON.stringify(gd).slice(0, 1000);
+      await sb(`tarefas?id=eq.${t.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'feito', resultado: { repo, caminho, conteudo } }) });
+      await sb('eventos', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ agente: t.agente || 'hector', tipo: 'acao', mensagem: `leu ${repo}/${caminho}`, tarefa_id: t.id }) });
+      resultados.push({ id: t.id, agente: t.agente || 'hector', acao: 'github_ler', status: 'feito' });
+      continue;
+    }
+
+    // ── GITHUB: ALTERAR (escrita — trava dura de aprovação) ──
+    if (t.acao === 'github_alterar') {
+      if (!t.aprovado_por) {
+        await sb(`tarefas?id=eq.${t.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'aguardando_aprovacao' }) });
+        resultados.push({ id: t.id, agente: t.agente || 'hector', acao: 'github_alterar', status: 'aguardando_aprovacao' });
+        continue;
+      }
+      if (!GH_PAT || String(GH_PAT).startsWith('COLE')) throw new Error('GH_PAT nao configurado nos secrets');
+      const p = t.payload || {};
+      const repo = p.repo, caminho = p.path || p.caminho, branch = p.branch || 'main';
+      // pega o sha se o arquivo já existe (necessário p/ atualizar)
+      let sha;
+      try {
+        const g = await fetch(`https://api.github.com/repos/${GH_OWNER}/${repo}/contents/${caminho}?ref=${branch}`,
+          { headers: { Authorization: `Bearer ${GH_PAT}`, Accept: 'application/vnd.github+json', 'User-Agent': 'zanka-worker' } });
+        if (g.ok) { const gd = await g.json(); sha = gd.sha; }
+      } catch (e) {}
+      const corpo = { message: p.mensagem || 'ZANKA: alteração aprovada', content: Buffer.from(String(p.conteudo || ''), 'utf-8').toString('base64'), branch };
+      if (sha) corpo.sha = sha;
+      const wr = await fetch(`https://api.github.com/repos/${GH_OWNER}/${repo}/contents/${caminho}`,
+        { method: 'PUT', headers: { Authorization: `Bearer ${GH_PAT}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'zanka-worker' }, body: JSON.stringify(corpo) });
+      const wd = await wr.json();
+      if (!wr.ok) throw new Error('GitHub ' + wr.status + ': ' + JSON.stringify(wd).slice(0, 150));
+      await sb(`tarefas?id=eq.${t.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'feito', resultado: { commit: wd.commit && wd.commit.sha, caminho } }) });
+      await sb('eventos', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ agente: t.agente || 'hector', tipo: 'acao', mensagem: `alterou ${repo}/${caminho}`, tarefa_id: t.id }) });
+      resultados.push({ id: t.id, agente: t.agente || 'hector', acao: 'github_alterar', status: 'feito' });
       continue;
     }
 

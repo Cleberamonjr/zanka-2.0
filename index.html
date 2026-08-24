@@ -722,6 +722,42 @@ function corpoCfg(){
     n8n:localStorage.getItem('zanka_corpo_n8n')||''
   };
 }
+
+// ═══════════════════════════════════════════════════════════
+// MEMÓRIA DE CONVERSA — grava o que você fala (por projeto) no
+// Supabase e relê antes de responder. Memória de verdade, em
+// qualquer aparelho, compartilhada com o worker.
+// ═══════════════════════════════════════════════════════════
+let _memCache = {};
+function _projAtivoNome(){ return (typeof projetoAtivo !== 'undefined' && projetoAtivo) ? projetoAtivo : 'geral'; }
+function _memKey(agId){ return agId + '|' + _projAtivoNome(); }
+async function carregarMemoria(agId){
+  const c = corpoCfg(); if(!c.url || !c.anon || !agId) return;
+  const proj = _projAtivoNome();
+  try{
+    const url = `${c.url}/rest/v1/memoria?agente=in.(${agId},time)&projeto=eq.${encodeURIComponent(proj)}&order=criado_em.desc&limit=15&select=chave,valor`;
+    const r = await fetch(url, { headers:{ 'apikey':c.anon, 'Authorization':'Bearer '+c.anon } });
+    const rows = await r.json();
+    if(!r.ok || !Array.isArray(rows) || !rows.length){ _memCache[_memKey(agId)] = ''; return; }
+    const linhas = rows.reverse().map(m => '- ' + String(m.valor).slice(0,220)).join('\n');
+    _memCache[_memKey(agId)] = `\n\n[MEMÓRIA DESTE PROJETO — o que já foi dito/definido antes]\n${linhas}`;
+  }catch(e){ /* silencioso */ }
+}
+async function gravarMemoria(agId, texto){
+  const c = corpoCfg(); if(!c.url || !c.anon || !agId || !texto) return;
+  const proj = _projAtivoNome();
+  const linha = { agente: agId, projeto: proj, chave: 'conversa_'+Date.now(), valor: String(texto).slice(0,500) };
+  const k = _memKey(agId);
+  const base = _memCache[k] || '\n\n[MEMÓRIA DESTE PROJETO — o que já foi dito/definido antes]';
+  _memCache[k] = base + '\n- ' + linha.valor.slice(0,220); // disponível já no próximo turno
+  try{
+    await fetch(`${c.url}/rest/v1/memoria?on_conflict=agente,projeto,chave`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'apikey':c.anon, 'Authorization':'Bearer '+c.anon, 'Prefer':'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(linha)
+    });
+  }catch(e){ /* silencioso */ }
+}
 function abrirCorpo(){
   if(typeof fecharMenu==='function') fecharMenu();
   const c=corpoCfg();
@@ -1528,6 +1564,7 @@ function sel(id) {
   document.querySelectorAll('.ag-btn').forEach(b => b.classList.remove('ativo'));
   document.getElementById('btn-'+id)?.classList.add('ativo');
   agenteId = id;
+  try { carregarMemoria(id); } catch(e){} // relê a memória do projeto p/ este agente
   const ag = AGENTES[id];
   document.getElementById('agAv').textContent = ag.emoji;
   document.getElementById('agName').textContent = ag.nome;
@@ -1752,8 +1789,11 @@ async function chamarAPI(agId, mensagem) {
   }
   if (historico[agId].length > 20) historico[agId] = historico[agId].slice(-20);
 
+  // MEMÓRIA: grava o que o usuário falou (por projeto) no Supabase — fire-and-forget
+  try { gravarMemoria(agId, mensagemOriginal); } catch(e){}
+
   const guardAntiAluc = '\n\n[REGRA CRÍTICA]: Nunca invente dados, métricas ou fatos não fornecidos. Se não tiver o dado, diga explicitamente. Sinalize estimativas como estimativas.';
-  const system = ag.system + guardAntiAluc + contextoConectores();
+  const system = ag.system + guardAntiAluc + contextoConectores() + (_memCache[_memKey(agId)] || '');
 
   // Bolha de streaming unificada — vale para QUALQUER provider da cadeia
   const ws = document.getElementById('wlScreen');
@@ -2999,6 +3039,7 @@ function selecionarProjeto(id) {
   try { salvarHistorico(); } catch(e) {}
   projetoAtivo = id;
   localStorage.setItem('zanka_projeto_ativo', id);
+  try { carregarMemoria(agenteId || 'zanka'); } catch(e){} // recarrega memória do novo projeto
   if (projetos[id]) projetos[id].ultimo_acesso = new Date().toISOString();
   salvarProjetos();
   // Load only this project's history and render it; never keep the previous project's DOM.
