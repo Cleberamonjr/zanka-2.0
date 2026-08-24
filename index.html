@@ -2713,20 +2713,10 @@ function renderConectoresExec() {
     </div>`;
   }).join('');
 
-  // 2) Catálogo de CONEXÃO ASSISTIDA (OAuth/MCP): reaproveita o render original do sprint
-  // (capturado antes da sobrescrita) que tem acesso ao catálogo CONNECTOR4 no mesmo escopo.
-  let assistedHtml = '';
-  try {
-    if (typeof window.__origAssistedRender === 'function') {
-      window.__origAssistedRender();       // preenche o grid com os cards assistidos
-      assistedHtml = grid.innerHTML;        // captura o HTML gerado
-    }
-  } catch(e) { console.warn('[ZANKA assisted]', e && e.message); }
-
+  // (Seção "Conexão assistida OAuth/MCP" removida — eram cards decorativos sem backend real.)
   grid.innerHTML =
     `<div class="con-section-title">⚡ Conectores executáveis — braços da equipe</div>` +
-    (execHtml || `<div class="con-empty">Nenhum ainda. Adicione um webhook (n8n), Telegram ou Supabase abaixo.</div>`) +
-    (assistedHtml ? `<div class="con-section-title" style="margin-top:14px">🔐 Conexão assistida (OAuth / MCP)</div>${assistedHtml}` : '');
+    (execHtml || `<div class="con-empty">Nenhum ainda. Adicione um webhook (n8n), Telegram ou Supabase abaixo.</div>`);
 }
 // Compatibilidade: todo mundo que chama renderConectores() usa a versão executável
 function renderConectores(){ return renderConectoresExec(); }
