@@ -1,0 +1,32 @@
+name: ZANKA Worker 24/7
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # a cada 15 min (UTC). Ajuste como quiser.
+  workflow_dispatch: {}       # botao "Run workflow" p/ rodar na hora
+
+concurrency:
+  group: zanka-worker
+  cancel-in-progress: false
+
+jobs:
+  rodar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Rodar equipe ZANKA
+        working-directory: zanka2/worker
+        env:
+          SUPABASE_URL:          ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+          GLM_KEY:               ${{ secrets.GLM_KEY }}
+          GEMINI_KEY:            ${{ secrets.GEMINI_KEY }}
+          DEEPSEEK_KEY:          ${{ secrets.DEEPSEEK_KEY }}
+          TELEGRAM_TOKEN:        ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT:         ${{ secrets.TELEGRAM_CHAT }}
+          RESEND_KEY:            ${{ secrets.RESEND_KEY }}
+          RESEND_FROM:           ${{ secrets.RESEND_FROM }}
+        run: node runner.mjs

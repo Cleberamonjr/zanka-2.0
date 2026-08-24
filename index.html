@@ -595,6 +595,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
       onkeydown="if(event.key==='Enter')tentarDesbloquear()">
     <div class="lock-err" id="lockErr"></div>
     <button class="lock-btn" onclick="tentarDesbloquear()">Entrar</button>
+    <button class="lock-btn" id="lockMic" onclick="ouvirSenha()" style="background:transparent;border:1px solid var(--border2);margin-top:2px;">🎤 Falar a palavra-chave</button>
+    <div class="lock-err" id="lockVoz" style="font-size:10px;opacity:.65;color:var(--text3);"></div>
   </div>
 </div>
 
@@ -1514,6 +1516,7 @@ window.onload = () => {
   if (glm || o || g || ds) {
     document.getElementById('setupOverlay').style.display = 'none';
     inicializarSistema();
+    holdSistema(true); // sempre abre TRAVADO na tela de bloqueio
   }
   // Se não tem nenhuma chave de IA salva, o setupOverlay permanece visível (default no HTML)
 };
@@ -2511,6 +2514,31 @@ function desbloquear() {
   const bh = document.getElementById('btnHold');
   if (bh) bh.textContent = '🔒 Travar sistema (Hold)';
   addMsg('🔓 Sistema desbloqueado. De volta ao show!', false);
+}
+
+// Destravar por VOZ — fale a palavra-chave (ou uma frase falada mais fácil)
+function normSenha(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function ouvirSenha(){
+  const vozEl = document.getElementById('lockVoz');
+  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!Rec){ if(vozEl) vozEl.textContent = 'Voz não suportada neste navegador — digite a palavra-chave.'; return; }
+  // frase falada (mais fácil de pronunciar); ajustável em localStorage. Padrão: "zanka"
+  const vozSenha = localStorage.getItem('zanka_voz_senha') || 'zanka';
+  const alvo = [normSenha(SENHA_TEXTO), normSenha(vozSenha)].filter(Boolean);
+  const rec = new Rec();
+  rec.lang = 'pt-BR'; rec.interimResults = false; rec.maxAlternatives = 4;
+  if(vozEl) vozEl.textContent = '🎙️ Ouvindo... fale a palavra-chave';
+  rec.onresult = (e)=>{
+    let ok = false;
+    const alts = e.results[0];
+    for(let i=0;i<alts.length;i++){
+      const t = normSenha(alts[i].transcript);
+      if(t && alvo.some(a => a && (t===a || t.includes(a)))){ ok = true; break; }
+    }
+    if(ok){ desbloquear(); } else if(vozEl){ vozEl.textContent = 'Não reconheci. Tente de novo ou digite.'; }
+  };
+  rec.onerror = ()=>{ if(vozEl) vozEl.textContent = 'Erro no microfone — digite a palavra-chave.'; };
+  try{ rec.start(); }catch(e){ if(vozEl) vozEl.textContent = 'Não consegui abrir o microfone.'; }
 }
 
 // Detectar frases de segurança na intenção
