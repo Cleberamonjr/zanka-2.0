@@ -1,0 +1,111 @@
+{
+  "fallback": [
+    "glm",
+    "deepseek",
+    "gemini"
+  ],
+  "agentes": [
+    {
+      "id": "zanka",
+      "nome": "ZANKA",
+      "role": "CEO · ZANKA OS · Orquestradora · Estrategista",
+      "provider": "deepseek"
+    },
+    {
+      "id": "diana",
+      "nome": "DIANA",
+      "role": "CFO · Cientista de Dados · BI · Dashboards KPI",
+      "provider": "glm"
+    },
+    {
+      "id": "neji",
+      "nome": "NEJI",
+      "role": "COO · QA · Controle de Qualidade · Gestor de Projetos",
+      "provider": "deepseek"
+    },
+    {
+      "id": "sabrina",
+      "nome": "SABRINA",
+      "role": "Conteúdo Viral · Métricas Meta · Instagram · Facebook · TikTok",
+      "provider": "gemini"
+    },
+    {
+      "id": "fred",
+      "nome": "FRED",
+      "role": "Copywriter · SEO Orgânico · Conteúdo de Longo Prazo",
+      "provider": "gemini"
+    },
+    {
+      "id": "ludmilo",
+      "nome": "LUDMILO",
+      "role": "Visual · UX · Landing Pages · Design · Edição",
+      "provider": "gemini"
+    },
+    {
+      "id": "mbaku",
+      "nome": "MBAKU",
+      "role": "Tráfego Pago · Meta · Google · TikTok · ROAS 4x+",
+      "provider": "glm"
+    },
+    {
+      "id": "nix",
+      "nome": "NIX",
+      "role": "Growth Strategy · ICE Score · AARRR · Benchmarking",
+      "provider": "deepseek"
+    },
+    {
+      "id": "joao",
+      "nome": "JOÃO",
+      "role": "Parcerias · Afiliados · Co-marketing · B2B Global",
+      "provider": "glm"
+    },
+    {
+      "id": "hector",
+      "nome": "HECTOR BONILHA",
+      "role": "Dev Fullstack · Automações · Integrações · Sistemas",
+      "provider": "deepseek"
+    },
+    {
+      "id": "galdino",
+      "nome": "GALDINO",
+      "role": "CRM · Gestão de Pipeline · Integração de Operações",
+      "provider": "glm"
+    },
+    {
+      "id": "luna",
+      "nome": "LUNA",
+      "role": "SDR 24h · WhatsApp · Instagram DM · Qualificação",
+      "provider": "gemini"
+    },
+    {
+      "id": "marcus",
+      "nome": "MARCUS",
+      "role": "Follow-up · Pipeline · Fechamento de Vendas",
+      "provider": "glm"
+    },
+    {
+      "id": "mikimba",
+      "nome": "MIKIMBA",
+      "role": "Prospecção Fria · Novos Mercados · Outreach",
+      "provider": "glm"
+    },
+    {
+      "id": "iris",
+      "nome": "IRIS",
+      "role": "Onboarding · Ativação · Retenção · CS",
+      "provider": "glm"
+    },
+    {
+      "id": "aninha",
+      "nome": "ANINHA",
+      "role": "E-mail Marketing · Nutrição · Reativação de Leads",
+      "provider": "gemini"
+    },
+    {
+      "id": "jonny",
+      "nome": "JONNY",
+      "role": "Comunidade · Engajamento · Trends · Interação",
+      "provider": "gemini"
+    }
+  ]
+}
