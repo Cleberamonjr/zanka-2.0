@@ -2203,13 +2203,11 @@ function cicloEscuta() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   reconhecimento = new SR();
   reconhecimento.lang = 'pt-BR';
-  reconhecimento.continuous = true;      // não corta na primeira pausa
+  reconhecimento.continuous = false;
   reconhecimento.interimResults = true;
   reconhecimento.maxAlternatives = 1;
   let final = '';
   let interim = '';
-  let silencioTimer = null;
-  const JANELA_SILENCIO = parseInt(localStorage.getItem('zanka_pausa_ms') || '1600', 10); // ms de pausa antes de enviar
 
   reconhecimento.onstart = () => {
     setStatus('ouvindo');
@@ -2221,27 +2219,17 @@ function cicloEscuta() {
       if (e.results[i].isFinal) final += e.results[i][0].transcript;
       else interim += e.results[i][0].transcript;
     }
-    const mostra = (final || interim);
-    if (mostra) document.getElementById('inp').value = mostra;
-    // reinicia a janela de silêncio a cada fala — só envia quando você faz uma pausa de verdade
-    clearTimeout(silencioTimer);
-    silencioTimer = setTimeout(() => {
-      const texto = (final || interim || '').trim();
-      if (texto.length > 1 && !processando && !falando) {
-        try { reconhecimento.stop(); } catch(e) {}
-        document.getElementById('inp').value = '';
-        enviarTexto(texto);
-      }
-    }, JANELA_SILENCIO);
+    if (interim) document.getElementById('inp').value = interim;
+    if (final) document.getElementById('inp').value = final;
   };
   reconhecimento.onend = () => {
-    clearTimeout(silencioTimer);
     document.getElementById('micBar').classList.remove('show');
-    // a submissão é feita pela janela de silêncio; aqui só religa a escuta se ainda em modo voz
-    if (vozAtiva && deveOuvir && !falando && !processando) {
+    document.getElementById('inp').value = '';
+    if (final.trim().length > 1 && !processando && !falando) {
+      enviarTexto(final.trim());
+    } else if (vozAtiva && deveOuvir && !falando && !processando) {
       setTimeout(cicloEscuta, 350);
     } else {
-      document.getElementById('inp').value = '';
       setStatus('pronto');
     }
   };
@@ -2336,13 +2324,14 @@ async function falarVoz(txt) {
 
 async function falarElevenLabs(texto) {
   try {
-    const resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB/stream', {
+    const vozId = localStorage.getItem('zanka_eleven_voz') || 'pNInz6obpgDQGcFmaJgB'; // masculino grave (Adam) — troque pelo ID da voz que quiser
+    const resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + vozId + '/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'xi-api-key': keyElevenLabs },
       body: JSON.stringify({
         text: texto,
         model_id: 'eleven_multilingual_v2',
-        voice_settings: { stability: 0.5, similarity_boost: 0.8 }
+        voice_settings: { stability: 0.38, similarity_boost: 0.85, style: 0.35, use_speaker_boost: true }
       })
     });
     if (!resp.ok) return false;
