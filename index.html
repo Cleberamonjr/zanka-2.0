@@ -250,11 +250,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .proj-title{font-size:20px;font-weight:900;letter-spacing:-.4px;margin-bottom:4px;}
 .proj-sub{font-size:12px;color:var(--text2);line-height:1.6;}
 .proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-.proj-item{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;position:relative;}
-.proj-item:hover{border-color:var(--purple);transform:translateY(-2px);}
-.proj-item.selecionado{border:2px solid var(--purple);background:rgba(56,225,255,.08);}
+.proj-item{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .18s;position:relative;}
+.proj-item:hover{border-color:var(--purple-border);transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.35),0 0 20px rgba(56,225,255,.1);}
+.proj-item.selecionado{border:1.5px solid var(--accent);background:rgba(56,225,255,.06);box-shadow:0 0 0 1px rgba(56,225,255,.3),0 0 22px rgba(56,225,255,.14);}
 .proj-item.embriao{border-style:dashed;opacity:.75;}
-.proj-emoji{font-size:28px;margin-bottom:8px;}
+.proj-ic{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#eafaff;margin-bottom:12px;background:linear-gradient(140deg,rgba(56,225,255,.92),rgba(59,130,246,.85));box-shadow:0 4px 16px rgba(56,225,255,.25),inset 0 1px 0 rgba(255,255,255,.28);letter-spacing:-.5px;}
 .proj-nome{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
 .proj-desc{font-size:10px;color:var(--text3);line-height:1.5;margin-bottom:8px;}
 .proj-badge{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:700;display:inline-block;}
@@ -592,12 +592,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 <div class="proj-overlay" id="projOverlay">
   <div class="proj-card-wrap">
     <div class="proj-header">
-      <div class="proj-title">🎯 Qual projeto hoje?</div>
+      <div class="proj-title">Qual projeto hoje?</div>
       <div class="proj-sub" id="projSub">ZANKA analisou o portfólio. Escolha o foco do dia — os demais continuam sendo monitorados.</div>
     </div>
 
     <div class="proj-alerta" id="projAlerta">
-      <strong>⚡ Análise do portfólio:</strong> carregando...
+      <strong>Análise do portfólio:</strong> carregando...
     </div>
 
     <div class="proj-grid" id="projGrid"></div>
@@ -2196,11 +2196,13 @@ function cicloEscuta() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   reconhecimento = new SR();
   reconhecimento.lang = 'pt-BR';
-  reconhecimento.continuous = false;
+  reconhecimento.continuous = true;      // não corta na primeira pausa
   reconhecimento.interimResults = true;
   reconhecimento.maxAlternatives = 1;
   let final = '';
   let interim = '';
+  let silencioTimer = null;
+  const JANELA_SILENCIO = parseInt(localStorage.getItem('zanka_pausa_ms') || '1600', 10); // ms de pausa antes de enviar
 
   reconhecimento.onstart = () => {
     setStatus('ouvindo');
@@ -2212,17 +2214,27 @@ function cicloEscuta() {
       if (e.results[i].isFinal) final += e.results[i][0].transcript;
       else interim += e.results[i][0].transcript;
     }
-    if (interim) document.getElementById('inp').value = interim;
-    if (final) document.getElementById('inp').value = final;
+    const mostra = (final || interim);
+    if (mostra) document.getElementById('inp').value = mostra;
+    // reinicia a janela de silêncio a cada fala — só envia quando você faz uma pausa de verdade
+    clearTimeout(silencioTimer);
+    silencioTimer = setTimeout(() => {
+      const texto = (final || interim || '').trim();
+      if (texto.length > 1 && !processando && !falando) {
+        try { reconhecimento.stop(); } catch(e) {}
+        document.getElementById('inp').value = '';
+        enviarTexto(texto);
+      }
+    }, JANELA_SILENCIO);
   };
   reconhecimento.onend = () => {
+    clearTimeout(silencioTimer);
     document.getElementById('micBar').classList.remove('show');
-    document.getElementById('inp').value = '';
-    if (final.trim().length > 1 && !processando && !falando) {
-      enviarTexto(final.trim());
-    } else if (vozAtiva && deveOuvir && !falando && !processando) {
+    // a submissão é feita pela janela de silêncio; aqui só religa a escuta se ainda em modo voz
+    if (vozAtiva && deveOuvir && !falando && !processando) {
       setTimeout(cicloEscuta, 350);
     } else {
+      document.getElementById('inp').value = '';
       setStatus('pronto');
     }
   };
@@ -2329,7 +2341,7 @@ async function falarElevenLabs(texto) {
     if (!resp.ok) return false;
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
+    const audio = new Audio(url); audio.playbackRate = parseFloat(localStorage.getItem('zanka_voz_rate')||'1.1');
     document.getElementById('waveBars').classList.add('show');
     return new Promise(res => {
       audio.onended = () => {
@@ -2363,7 +2375,7 @@ async function falarGoogleTTS(texto) {
     );
     const data = await resp.json();
     if (!data.audioContent) return false;
-    const audio = new Audio('data:audio/mp3;base64,' + data.audioContent);
+    const audio = new Audio('data:audio/mp3;base64,' + data.audioContent); audio.playbackRate = parseFloat(localStorage.getItem('zanka_voz_rate')||'1.1');
     document.getElementById('waveBars').classList.add('show');
     return new Promise(res => {
       audio.onended = () => {
@@ -2406,11 +2418,11 @@ async function falarWebSpeech(texto) {
     if (v) {
       u.voice = v;
       // Ajustar pitch baseado na voz encontrada
-      u.rate = 1.0;
+      u.rate = parseFloat(localStorage.getItem('zanka_voz_rate')||'1.1');
       u.pitch = v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('feminina') ? 0.1 : 0.85;
     } else {
       // Sem voz pt-BR — usar pitch baixo para simular masculino
-      u.rate = 1.0;
+      u.rate = parseFloat(localStorage.getItem('zanka_voz_rate')||'1.1');
       u.pitch = 0.1;
     }
 
@@ -3078,7 +3090,7 @@ function renderProjetos() {
       : null;
     const diasTxt = dias === null ? 'Nunca acessado' : dias === 0 ? 'Hoje' : `${dias}d sem acesso`;
     return `<div class="proj-item ${sel} ${cls}" onclick="selecionarProjeto('${p.id}')">
-      <div class="proj-emoji">${p.emoji}</div>
+      <div class="proj-ic">${escapeHtml((p.nome||"?").trim().charAt(0).toUpperCase())}</div>
       <div class="proj-nome">${escapeHtml(p.nome)}</div>
       <div class="proj-desc">${escapeHtml(p.descricao)}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -3189,10 +3201,10 @@ async function analisarPortfolio() {
   const promissores = lista.filter(p => p.roas_potencial?.toLowerCase().includes('alto') || p.roas_potencial?.toLowerCase().includes('muito'));
   const embriao = lista.filter(p => p.status === 'embriao');
 
-  let texto = '<strong>&#9889; Análise do portfólio:</strong> ';
-  if (estagnados.length) texto += estagnados.map(p=>p.emoji+' '+p.nome).join(', ') + ' sem acesso recente - risco de estagnação. ';
-  if (promissores.length) texto += promissores.map(p=>p.emoji+' '+p.nome).join(', ') + ' com alto potencial de ROAS. ';
-  if (embriao.length) texto += embriao.map(p=>p.emoji+' '+p.nome).join(', ') + ' em fase embrião - precisam de atenção para não perder o timing.';
+  let texto = '<strong>Análise do portfólio:</strong> ';
+  if (estagnados.length) texto += estagnados.map(p=>p.nome).join(', ') + ' sem acesso recente - risco de estagnação. ';
+  if (promissores.length) texto += promissores.map(p=>p.nome).join(', ') + ' com alto potencial de ROAS. ';
+  if (embriao.length) texto += embriao.map(p=>p.nome).join(', ') + ' em fase embrião - precisam de atenção para não perder o timing.';
   if (!estagnados.length && !embriao.length) texto += 'Portfólio saudável. Escolha o foco de hoje.';
 
   alerta.innerHTML = texto;
