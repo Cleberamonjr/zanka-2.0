@@ -85,6 +85,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .zv-r2{inset:5px;border-bottom-color:rgba(59,130,246,.7);border-left-color:rgba(59,130,246,.2);animation:zvSpin 4.4s linear infinite reverse;}
 .zv-r3{inset:10px;border-top-color:rgba(127,227,255,.6);animation:zvSpin 3s linear infinite;}
 @keyframes zvSpin{to{transform:rotate(360deg);}}
+#agModelBadge{display:none!important;}
 .zvortex.pensando{opacity:1;filter:drop-shadow(0 0 8px rgba(56,225,255,.55));}
 .zvortex.pensando .zv-r1{animation-duration:1.5s;}
 .zvortex.pensando .zv-r2{animation-duration:1.1s;}
@@ -2095,7 +2096,7 @@ async function enviarTexto(txt) {
   try {
     const r = await chamarAPI(agenteId, msgParaAPI);
     hideTyping();
-    if (!document.getElementById("streamBub_" + agenteId)) {
+    if (!document.querySelector('[id^="streamBub_' + agenteId + '_"]')) {
       addMsg(r, false);
     }
     if (vozAtiva && !modoSilencioso) await falarVoz(r);
@@ -2121,7 +2122,7 @@ async function enviarParaZANKA(msg) {
   try {
     const r = await chamarAPI('zanka', msg);
     hideTyping();
-    if (!document.getElementById('streamBub_zanka')) addMsg(r, false);
+    if (!document.querySelector('[id^="streamBub_zanka_"]')) addMsg(r, false);
     if (vozAtiva && !modoSilencioso) await falarVoz(r);
     else setStatus('pronto');
   } catch(e) {
@@ -3163,7 +3164,7 @@ async function briefingProjeto(p) {
   try {
     const r = await chamarAPI('zanka', msg);
     hideTyping();
-    if (!document.getElementById('streamBub_zanka')) addMsg(r, false);
+    if (!document.querySelector('[id^="streamBub_zanka_"]')) addMsg(r, false);
     if (vozAtiva && !modoSilencioso) await falarVoz(r);
     else setStatus('pronto');
   } catch(e) {
