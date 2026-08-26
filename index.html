@@ -2240,6 +2240,9 @@ function cicloEscuta() {
   };
   reconhecimento.onerror = (e) => {
     document.getElementById('micBar').classList.remove('show');
+    // Diagnóstico visível: mostra o erro real do reconhecimento no rótulo de status
+    const lbl = document.getElementById('vsLabel');
+    if (lbl && e.error && e.error !== 'aborted') lbl.textContent = 'Voz: ' + e.error;
     const ok = ['no-speech','aborted','network'];
     if (ok.includes(e.error) && vozAtiva && deveOuvir && !falando && !processando)
       setTimeout(cicloEscuta, 600);
@@ -2329,7 +2332,8 @@ async function falarVoz(txt) {
 
 async function falarElevenLabs(texto) {
   try {
-    const vozId = localStorage.getItem('zanka_eleven_voz') || 'pNInz6obpgDQGcFmaJgB'; // masculino grave (Adam) — troque pelo ID da voz que quiser
+    const vozId = localStorage.getItem('zanka_eleven_voz') || 'AxmQsSdsz8MlV0gY8pKp'; // voz escolhida no ElevenLabs
+    const modelo = localStorage.getItem('zanka_eleven_model') || 'eleven_v3';
     const ctrl = new AbortController();
     const _to = setTimeout(() => ctrl.abort(), 6000); // se o ElevenLabs travar, aborta e cai pro Google
     const resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + vozId + '/stream', {
@@ -2338,7 +2342,7 @@ async function falarElevenLabs(texto) {
       signal: ctrl.signal,
       body: JSON.stringify({
         text: texto,
-        model_id: 'eleven_multilingual_v2',
+        model_id: modelo,
         voice_settings: { stability: 0.38, similarity_boost: 0.85, style: 0.35, use_speaker_boost: true }
       })
     });
