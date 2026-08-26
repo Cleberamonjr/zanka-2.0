@@ -2330,15 +2330,19 @@ async function falarVoz(txt) {
 async function falarElevenLabs(texto) {
   try {
     const vozId = localStorage.getItem('zanka_eleven_voz') || 'pNInz6obpgDQGcFmaJgB'; // masculino grave (Adam) — troque pelo ID da voz que quiser
+    const ctrl = new AbortController();
+    const _to = setTimeout(() => ctrl.abort(), 6000); // se o ElevenLabs travar, aborta e cai pro Google
     const resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + vozId + '/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'xi-api-key': keyElevenLabs },
+      signal: ctrl.signal,
       body: JSON.stringify({
         text: texto,
         model_id: 'eleven_multilingual_v2',
         voice_settings: { stability: 0.38, similarity_boost: 0.85, style: 0.35, use_speaker_boost: true }
       })
     });
+    clearTimeout(_to);
     if (!resp.ok) return false;
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
@@ -2369,7 +2373,7 @@ async function falarGoogleTTS(texto) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           input: { text: texto },
-          voice: { languageCode: 'pt-BR', name: 'pt-BR-Wavenet-B', ssmlGender: 'MALE' },
+          voice: { languageCode: 'pt-BR', name: localStorage.getItem('zanka_google_voz') || 'pt-BR-Wavenet-B' },
           audioConfig: { audioEncoding: 'MP3', speakingRate: 0.95, pitch: -2.0 }
         })
       }
