@@ -62,7 +62,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .ag-btn{display:flex;align-items:center;gap:7px;padding:7px 12px;cursor:pointer;font-size:11px;color:var(--text2);border:none;background:transparent;width:100%;text-align:left;font-family:inherit;border-left:2px solid transparent;transition:all .12s;}
 .ag-btn:hover{color:var(--text);background:rgba(255,255,255,.02);}
 .ag-btn.ativo{color:var(--blue);background:var(--blue-bg);border-left-color:var(--blue);font-weight:600;}
-.ag-emoji{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
+.ag-emoji{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#eafaff;background:linear-gradient(140deg,rgba(56,225,255,.85),rgba(59,130,246,.8));flex-shrink:0;letter-spacing:-.3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.2);}
 .ag-info-sb{flex:1;}
 .ag-name-sb{font-size:11px;font-weight:700;}
 .ag-role-sb{font-size:9px;color:var(--text3);margin-top:1px;}
@@ -75,7 +75,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 /* CHAT */
 .chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .ag-header{padding:12px 20px;background:var(--s1);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.ag-av{width:36px;height:36px;border-radius:10px;background:var(--s3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.ag-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(140deg,rgba(56,225,255,.9),rgba(59,130,246,.85));border:none;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#eafaff;flex-shrink:0;letter-spacing:-.5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.25);}
 /* VÓRTEX — assinatura do ZANKA: circula ao pensar, vibra ao falar */
 .zvortex-wrap{position:relative;width:36px;height:36px;display:grid;place-items:center;flex-shrink:0;}
 .zvortex-wrap .ag-av{position:relative;z-index:2;}
@@ -467,17 +467,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
     <div class="sb-section">
       <div class="sb-label">C-Level</div>
       <button class="ag-btn ativo" onclick="sel('zanka')" id="btn-zanka">
-        <span class="ag-emoji"></span>
+        <span class="ag-emoji">Z</span>
         <div class="ag-info-sb"><div class="ag-name-sb">ZANKA</div><div class="ag-role-sb">Orquestradora</div></div>
         <span class="clevel-tag tag-ceo">CEO</span>
       </button>
       <button class="ag-btn" onclick="sel('diana')" id="btn-diana">
-        <span class="ag-emoji">📊</span>
+        <span class="ag-emoji">D</span>
         <div class="ag-info-sb"><div class="ag-name-sb">DIANA</div><div class="ag-role-sb">BI · Dashboards</div></div>
         <span class="clevel-tag tag-cfo">CFO</span>
       </button>
       <button class="ag-btn" onclick="sel('neji')" id="btn-neji">
-        <span class="ag-emoji">✅</span>
+        <span class="ag-emoji">N</span>
         <div class="ag-info-sb"><div class="ag-name-sb">NEJI</div><div class="ag-role-sb">QA · Controle</div></div>
         <span class="clevel-tag tag-coo">COO</span>
       </button>
@@ -485,32 +485,32 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 
     <div class="sb-section">
       <div class="sb-label">Conteúdo & Copy</div>
-      <button class="ag-btn" onclick="sel('sabrina')" id="btn-sabrina"><span class="ag-emoji">💃</span><div class="ag-info-sb"><div class="ag-name-sb">SABRINA</div><div class="ag-role-sb">Conteúdo viral · Métricas</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('fred')" id="btn-fred"><span class="ag-emoji">✍️</span><div class="ag-info-sb"><div class="ag-name-sb">FRED</div><div class="ag-role-sb">Copy · SEO</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('ludmilo')" id="btn-ludmilo"><span class="ag-emoji">🎨</span><div class="ag-info-sb"><div class="ag-name-sb">LUDMILO</div><div class="ag-role-sb">Visual · UX · LP</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('sabrina')" id="btn-sabrina"><span class="ag-emoji">S</span><div class="ag-info-sb"><div class="ag-name-sb">SABRINA</div><div class="ag-role-sb">Conteúdo viral · Métricas</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('fred')" id="btn-fred"><span class="ag-emoji">F</span><div class="ag-info-sb"><div class="ag-name-sb">FRED</div><div class="ag-role-sb">Copy · SEO</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('ludmilo')" id="btn-ludmilo"><span class="ag-emoji">L</span><div class="ag-info-sb"><div class="ag-name-sb">LUDMILO</div><div class="ag-role-sb">Visual · UX · LP</div></div><div class="ag-dot"></div></button>
     </div>
 
     <div class="sb-section">
       <div class="sb-label">Crescimento</div>
-      <button class="ag-btn" onclick="sel('mbaku')" id="btn-mbaku"><span class="ag-emoji">💪</span><div class="ag-info-sb"><div class="ag-name-sb">MBAKU</div><div class="ag-role-sb">Tráfego · ROAS 4x</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('nix')" id="btn-nix"><span class="ag-emoji">🔭</span><div class="ag-info-sb"><div class="ag-name-sb">NIX</div><div class="ag-role-sb">Growth · ICE</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('joao')" id="btn-joao"><span class="ag-emoji">🤝</span><div class="ag-info-sb"><div class="ag-name-sb">JOÃO</div><div class="ag-role-sb">Parcerias · Afiliados</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('mbaku')" id="btn-mbaku"><span class="ag-emoji">M</span><div class="ag-info-sb"><div class="ag-name-sb">MBAKU</div><div class="ag-role-sb">Tráfego · ROAS 4x</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('nix')" id="btn-nix"><span class="ag-emoji">N</span><div class="ag-info-sb"><div class="ag-name-sb">NIX</div><div class="ag-role-sb">Growth · ICE</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('joao')" id="btn-joao"><span class="ag-emoji">J</span><div class="ag-info-sb"><div class="ag-name-sb">JOÃO</div><div class="ag-role-sb">Parcerias · Afiliados</div></div><div class="ag-dot"></div></button>
     </div>
 
     <div class="sb-section">
       <div class="sb-label">Tecnologia</div>
-      <button class="ag-btn" onclick="sel('hector')" id="btn-hector"><span class="ag-emoji">🖥️</span><div class="ag-info-sb"><div class="ag-name-sb">HECTOR</div><div class="ag-role-sb">Dev · Automação</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('galdino')" id="btn-galdino"><span class="ag-emoji">📋</span><div class="ag-info-sb"><div class="ag-name-sb">GALDINO</div><div class="ag-role-sb">CRM · Integração</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('hector')" id="btn-hector"><span class="ag-emoji">H</span><div class="ag-info-sb"><div class="ag-name-sb">HECTOR</div><div class="ag-role-sb">Dev · Automação</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('galdino')" id="btn-galdino"><span class="ag-emoji">G</span><div class="ag-info-sb"><div class="ag-name-sb">GALDINO</div><div class="ag-role-sb">CRM · Integração</div></div><div class="ag-dot"></div></button>
     </div>
 
     <div class="sb-section">
       <div class="sb-label">Vendas & Atendimento</div>
-      <button class="ag-btn" onclick="sel('luna')" id="btn-luna"><span class="ag-emoji">📲</span><div class="ag-info-sb"><div class="ag-name-sb">LUNA</div><div class="ag-role-sb">SDR 24h</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('marcus')" id="btn-marcus"><span class="ag-emoji">📈</span><div class="ag-info-sb"><div class="ag-name-sb">MARCUS</div><div class="ag-role-sb">Pipeline · Fechamento</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('mikimba')" id="btn-mikimba"><span class="ag-emoji">🔍</span><div class="ag-info-sb"><div class="ag-name-sb">MIKIMBA</div><div class="ag-role-sb">Prospecção fria</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('iris')" id="btn-iris"><span class="ag-emoji">🌸</span><div class="ag-info-sb"><div class="ag-name-sb">IRIS</div><div class="ag-role-sb">Onboarding · CS</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('aninha')" id="btn-aninha"><span class="ag-emoji">📧</span><div class="ag-info-sb"><div class="ag-name-sb">ANINHA</div><div class="ag-role-sb">E-mail · Nutrição</div></div><div class="ag-dot"></div></button>
-      <button class="ag-btn" onclick="sel('jonny')" id="btn-jonny"><span class="ag-emoji">🎯</span><div class="ag-info-sb"><div class="ag-name-sb">JONNY</div><div class="ag-role-sb">Comunidade</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('luna')" id="btn-luna"><span class="ag-emoji">L</span><div class="ag-info-sb"><div class="ag-name-sb">LUNA</div><div class="ag-role-sb">SDR 24h</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('marcus')" id="btn-marcus"><span class="ag-emoji">M</span><div class="ag-info-sb"><div class="ag-name-sb">MARCUS</div><div class="ag-role-sb">Pipeline · Fechamento</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('mikimba')" id="btn-mikimba"><span class="ag-emoji">M</span><div class="ag-info-sb"><div class="ag-name-sb">MIKIMBA</div><div class="ag-role-sb">Prospecção fria</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('iris')" id="btn-iris"><span class="ag-emoji">I</span><div class="ag-info-sb"><div class="ag-name-sb">IRIS</div><div class="ag-role-sb">Onboarding · CS</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('aninha')" id="btn-aninha"><span class="ag-emoji">A</span><div class="ag-info-sb"><div class="ag-name-sb">ANINHA</div><div class="ag-role-sb">E-mail · Nutrição</div></div><div class="ag-dot"></div></button>
+      <button class="ag-btn" onclick="sel('jonny')" id="btn-jonny"><span class="ag-emoji">J</span><div class="ag-info-sb"><div class="ag-name-sb">JONNY</div><div class="ag-role-sb">Comunidade</div></div><div class="ag-dot"></div></button>
     </div>
 
   </aside>
@@ -1615,7 +1615,7 @@ function sel(id) {
   agenteId = id;
   try { carregarMemoria(id); } catch(e){} // relê a memória do projeto p/ este agente
   const ag = AGENTES[id];
-  document.getElementById('agAv').textContent = ag.emoji;
+  document.getElementById('agAv').textContent = (ag.nome||'?').trim().charAt(0).toUpperCase();
   document.getElementById('agName').textContent = ag.nome;
   document.getElementById('agRole').textContent = ag.role;
   document.getElementById('inp').placeholder = "Fale ou escreva para " + ag.nome + "...";
