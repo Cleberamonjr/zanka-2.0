@@ -396,6 +396,10 @@ body{font-family:'Inter',sans-serif;background:radial-gradient(1100px 560px at 5
       <input class="setup-input" id="keyElevenLabs" type="password"
         placeholder="sk_..." oninput="onKeyInput(this,'keyElevenLabs')">
       <div class="setup-hint">Voz masculina pt-BR premium. Sem ela, usa Google TTS (também funciona).</div>
+      <input class="setup-input" id="elevenVozId" type="text" style="margin-top:8px"
+        placeholder="ID da voz do ElevenLabs (opcional)"
+        oninput="localStorage.setItem('zanka_eleven_voz', this.value.trim())">
+      <div class="setup-hint">Cole aqui o Voice ID escolhido na sua conta ElevenLabs. Vazio = voz padrão (masculina grave).</div>
     </div>
 
     <div class="setup-err" id="setupErr">Cole ao menos uma chave de IA para continuar.</div>
@@ -1520,6 +1524,7 @@ function trocarKey() {
   set('keyDeepSeek', keyDeepSeek);
   set('keyClaude', keyClaude);
   set('keyElevenLabs', keyElevenLabs);
+  set('elevenVozId', localStorage.getItem('zanka_eleven_voz') || '');
   document.getElementById('setupOverlay').style.display = 'flex';
 }
 
