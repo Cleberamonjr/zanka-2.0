@@ -293,6 +293,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .menu-dropdown{position:absolute;top:38px;right:0;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:6px;display:none;flex-direction:column;gap:2px;z-index:600;min-width:220px;box-shadow:0 14px 44px rgba(0,0,0,.55);}
 .menu-dropdown.show{display:flex;}
 .menu-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:all .12s;}
+.mi-ic{width:16px;height:16px;flex-shrink:0;stroke:currentColor;opacity:.85;}
+.menu-info .mi-ic{width:14px;height:14px;opacity:.6;}
+.tb-btn .mi-ic{width:15px;height:15px;}
 .menu-item:hover{background:rgba(255,255,255,.05);color:var(--text);}
 .menu-sep{height:1px;background:var(--border);margin:5px 6px;}
 .menu-info{padding:5px 12px 3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);}
@@ -436,21 +439,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
   <div class="tb-right">
     <button class="tb-btn" onclick="atualizarVersao()" title="Buscar a nova versão publicada no GitHub — a conversa é preservada">🔄 Atualizar</button>
     <div class="menu-wrap">
-      <button class="tb-btn" id="btnMenu" onclick="toggleMenu(event)" title="Controles">⚙ Menu</button>
+      <button class="tb-btn" id="btnMenu" onclick="toggleMenu(event)" title="Controles"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg> Menu</button>
       <div class="menu-dropdown" id="menuDropdown">
         <div class="menu-info">Voz</div>
-        <button class="menu-item" id="btnVoz" onclick="ativarMicrofone()">🎤 Clique para falar</button>
-        <button class="menu-item" id="btnSilencio" onclick="toggleSilencio()">🔇 Modo silêncio</button>
-        <div class="menu-info" id="ttsInfo">🔈 Voz: Google TTS</div>
+        <button class="menu-item" id="btnVoz" onclick="ativarMicrofone()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg> Clique para falar</button>
+        <button class="menu-item" id="btnSilencio" onclick="toggleSilencio()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><path d="M9 9v3a3 3 0 0 0 5.1 2.1"/><path d="M15 9.3V5a3 3 0 0 0-5.9-.6"/><path d="M5 10v1a7 7 0 0 0 11 5.7"/><line x1="12" y1="19" x2="12" y2="22"/></svg> Modo silêncio</button>
+        <div class="menu-info" id="ttsInfo"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg> Voz: Google TTS</div>
         <div class="menu-sep"></div>
         <div class="menu-info">Sistema</div>
-        <button class="menu-item" onclick="trocarKey()">🔑 Chaves de API</button>
-        <button class="menu-item" onclick="abrirConectores()">🔌 Conectores</button>
-        <button class="menu-item" onclick="abrirCorpo()">🌙 Corpo 24/7</button>
-        <button class="menu-item" onclick="limpar()">🗑 Limpar conversa</button>
+        <button class="menu-item" onclick="trocarKey()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3l1 1-2 2 2 2-2 2-2-2-2.2 2.2"/></svg> Chaves de API</button>
+        <button class="menu-item" onclick="abrirConectores()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6M15 2v6M7 8h10v3a5 5 0 0 1-10 0z"/><path d="M12 16v6"/></svg> Conectores</button>
+        <button class="menu-item" onclick="abrirCorpo()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg> Corpo 24/7</button>
+        <button class="menu-item" onclick="limpar()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg> Limpar conversa</button>
         <div class="menu-sep"></div>
-        <button class="menu-item" id="btnHold" onclick="holdSistema()">🔒 Travar sistema (Hold)</button>
-        <button class="menu-item" onclick="escolherImagemBloqueio()">🖼 Imagem da tela de bloqueio</button>
+        <button class="menu-item" id="btnHold" onclick="holdSistema()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Travar sistema (Hold)</button>
+        <button class="menu-item" onclick="escolherImagemBloqueio()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m4 18 5-5 4 4 3-3 4 4"/></svg> Imagem da tela de bloqueio</button>
       </div>
     </div>
   </div>
@@ -2584,7 +2587,7 @@ function holdSistema(silencioso = false) {
   if (_eye) _eye.classList.remove('hide');
   if (_bar) _bar.classList.remove('show');
   if (_voz) _voz.textContent = '';
-  if (!silencioso) document.getElementById('btnHold').textContent = '🔓 Travado';
+  if (!silencioso) document.getElementById('btnHold').textContent = 'Travado';
 }
 // Revela a barra de senha ao clicar no olho (foco no polvo)
 function revelarSenha(){
@@ -2611,7 +2614,7 @@ function desbloquear() {
   sistemaTravaado = false;
   document.getElementById('lockOverlay').classList.remove('show');
   const bh = document.getElementById('btnHold');
-  if (bh) bh.textContent = '🔒 Travar sistema (Hold)';
+  if (bh) bh.textContent = 'Travar sistema (Hold)';
   addMsg('🔓 Sistema desbloqueado. De volta ao show!', false);
 }
 
