@@ -76,6 +76,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .ag-header{padding:12px 20px;background:var(--s1);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .ag-av{width:36px;height:36px;border-radius:10px;background:var(--s3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+/* VÓRTEX — assinatura do ZANKA: circula ao pensar, vibra ao falar */
+.zvortex-wrap{position:relative;width:36px;height:36px;display:grid;place-items:center;flex-shrink:0;}
+.zvortex-wrap .ag-av{position:relative;z-index:2;}
+.zvortex{position:absolute;inset:-16px;pointer-events:none;z-index:1;opacity:.5;transition:opacity .4s,filter .4s;}
+.zv-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid transparent;}
+.zv-r1{border-top-color:rgba(56,225,255,.85);border-right-color:rgba(56,225,255,.25);animation:zvSpin 6s linear infinite;}
+.zv-r2{inset:5px;border-bottom-color:rgba(59,130,246,.7);border-left-color:rgba(59,130,246,.2);animation:zvSpin 4.4s linear infinite reverse;}
+.zv-r3{inset:10px;border-top-color:rgba(127,227,255,.6);animation:zvSpin 3s linear infinite;}
+@keyframes zvSpin{to{transform:rotate(360deg);}}
+.zvortex.pensando{opacity:1;filter:drop-shadow(0 0 8px rgba(56,225,255,.55));}
+.zvortex.pensando .zv-r1{animation-duration:1.5s;}
+.zvortex.pensando .zv-r2{animation-duration:1.1s;}
+.zvortex.pensando .zv-r3{animation-duration:.8s;}
+.zvortex.falando{opacity:1;filter:drop-shadow(0 0 10px rgba(56,225,255,.65));animation:zvVibe .28s ease-in-out infinite;}
+@keyframes zvVibe{0%,100%{transform:scale(1);}25%{transform:scale(1.09) rotate(1deg);}50%{transform:scale(.96);}75%{transform:scale(1.06) rotate(-1deg);}}
+@media (prefers-reduced-motion:reduce){.zv-ring,.zvortex{animation:none!important;}}
 .ag-header-info{flex:1;}
 .ag-header-name{font-size:14px;font-weight:800;letter-spacing:-.3px;}
 .ag-header-role{font-size:10px;color:var(--text3);margin-top:2px;}
@@ -167,15 +183,26 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
 
 /* LOCK OVERLAY */
-.lock-overlay{position:fixed;inset:0;background:rgba(6,6,14,.97);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;backdrop-filter:blur(12px);}
+.lock-overlay{position:fixed;inset:0;background:var(--bg);background-size:cover;background-position:center;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;}
 .lock-overlay.show{display:flex;}
-.lock-icon{font-size:64px;}
-.lock-title{font-size:24px;font-weight:900;color:var(--text);letter-spacing:-.5px;}
-.lock-sub{font-size:13px;color:var(--text2);text-align:center;max-width:320px;line-height:1.7;}
-.lock-input{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:14px;color:var(--text);font-family:inherit;outline:none;text-align:center;width:260px;transition:border-color .12s;}
-.lock-input:focus{border-color:var(--purple);}
-.lock-err{font-size:11px;color:var(--red);min-height:16px;transition:opacity .2s;}
-.lock-btn{padding:12px 32px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.lock-scrim{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(6,10,19,.10),rgba(6,10,19,.74));pointer-events:none;}
+/* o "olho" — anel ciano pulsante, ponto focal pra revelar a senha */
+.lock-eye{position:relative;width:76px;height:76px;border:none;background:transparent;cursor:pointer;display:grid;place-items:center;z-index:2;}
+.lock-eye-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(56,225,255,.7);box-shadow:0 0 26px rgba(56,225,255,.35),inset 0 0 18px rgba(56,225,255,.16);animation:eyePulse 2.6s ease-in-out infinite;}
+.lock-eye-core{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px rgba(56,225,255,.95);}
+.lock-eye.hide{display:none;}
+@keyframes eyePulse{0%,100%{transform:scale(1);opacity:.85;}50%{transform:scale(1.14);opacity:.4;}}
+/* barra HUD da senha (revelada ao clicar no olho) */
+.lock-bar{display:none;align-items:center;gap:6px;padding:6px 6px 6px 18px;background:rgba(9,15,25,.62);border:1px solid rgba(56,225,255,.35);border-radius:999px;backdrop-filter:blur(10px);box-shadow:0 12px 44px rgba(0,0,0,.55),0 0 26px rgba(56,225,255,.12);z-index:2;}
+.lock-bar.show{display:flex;animation:barIn .28s cubic-bezier(.2,.8,.2,1);}
+@keyframes barIn{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:none;}}
+.lock-input{background:transparent;border:none;outline:none;color:var(--text);font-size:14px;letter-spacing:.4px;width:190px;font-family:inherit;}
+.lock-input::placeholder{color:var(--text3);letter-spacing:.4px;}
+.lock-ic{width:34px;height:34px;border-radius:50%;border:1px solid rgba(56,225,255,.28);background:rgba(56,225,255,.06);color:var(--accent);display:grid;place-items:center;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.lock-ic:hover{background:rgba(56,225,255,.16);box-shadow:0 0 14px rgba(56,225,255,.35);}
+.lock-ic.go{background:linear-gradient(135deg,var(--accent),var(--blue));color:#04121c;border:none;}
+.lock-ic.go:hover{filter:brightness(1.1);}
+.lock-err{position:absolute;bottom:calc(50% - 78px);font-size:11px;color:var(--text2);min-height:14px;text-align:center;letter-spacing:.2px;z-index:2;transition:opacity .2s;}
 
 /* CONECTORES — EXECUÇÃO REAL (v2) */
 .con-exec{margin-top:8px;display:flex;gap:6px;align-items:center;}
@@ -276,8 +303,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 
 /* ── v1.4 — LOCK SCREEN LIMPO + IMAGEM DE FUNDO ── */
 .lock-overlay{background-size:cover;background-position:center;background-repeat:no-repeat;}
-.lock-inner{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(10,14,23,.74);backdrop-filter:blur(12px);border:1px solid var(--border2);border-radius:12px;padding:18px 20px;box-shadow:0 16px 40px rgba(0,0,0,.4);min-width:250px;}
-.lock-inner .lock-icon{font-size:20px;opacity:.55;}
 
 /* Sprint 2.1 — project controls */
 .proj-actions{display:flex;gap:5px;margin-top:9px;}
@@ -488,7 +513,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 
   <div class="chat-main">
     <div class="ag-header">
-      <div class="ag-av" id="agAv"></div>
+      <div class="zvortex-wrap">
+        <span class="zvortex" id="zVortex" aria-hidden="true">
+          <span class="zv-ring zv-r1"></span>
+          <span class="zv-ring zv-r2"></span>
+          <span class="zv-ring zv-r3"></span>
+        </span>
+        <div class="ag-av" id="agAv"></div>
+      </div>
       <div class="ag-header-info">
         <div class="ag-header-name" id="agName">ZANKA</div>
         <div class="ag-header-role" id="agRole">ZANKA · CEO · CFO · Jurídica · Orquestradora</div>
@@ -594,15 +626,23 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 
 <!-- LOCK OVERLAY -->
 <div class="lock-overlay" id="lockOverlay">
-  <div class="lock-inner">
-    <div class="lock-icon">🔒</div>
-    <input class="lock-input" id="lockInput" type="password" placeholder="Palavra-chave..."
+  <div class="lock-scrim"></div>
+  <button class="lock-eye" id="lockEye" onclick="revelarSenha()" aria-label="Toque para desbloquear">
+    <span class="lock-eye-ring"></span>
+    <span class="lock-eye-core"></span>
+  </button>
+  <div class="lock-bar" id="lockBar">
+    <input class="lock-input" id="lockInput" type="password" placeholder="palavra-chave" autocomplete="off"
       onkeydown="if(event.key==='Enter')tentarDesbloquear()">
-    <div class="lock-err" id="lockErr"></div>
-    <button class="lock-btn" onclick="tentarDesbloquear()">Entrar</button>
-    <button class="lock-btn" id="lockMic" onclick="ouvirSenha()" style="background:transparent;border:1px solid var(--border2);margin-top:2px;">🎤 Falar a palavra-chave</button>
-    <div class="lock-err" id="lockVoz" style="font-size:10px;opacity:.65;color:var(--text3);"></div>
+    <button class="lock-ic" id="lockMic" onclick="ouvirSenha()" aria-label="Falar a palavra-chave" title="Falar">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+    </button>
+    <button class="lock-ic go" onclick="tentarDesbloquear()" aria-label="Entrar" title="Entrar">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg>
+    </button>
   </div>
+  <div class="lock-err" id="lockErr"></div>
+  <div class="lock-err" id="lockVoz" style="bottom:calc(50% - 96px);color:var(--text3);"></div>
 </div>
 
 <!-- CONECTORES OVERLAY -->
@@ -2538,8 +2578,20 @@ function holdSistema(silencioso = false) {
   document.getElementById('lockOverlay').classList.add('show');
   document.getElementById('lockInput').value = '';
   document.getElementById('lockErr').textContent = '';
+  // volta ao estado inicial: olho visível, barra escondida
+  var _eye = document.getElementById('lockEye'), _bar = document.getElementById('lockBar'), _voz = document.getElementById('lockVoz');
+  if (_eye) _eye.classList.remove('hide');
+  if (_bar) _bar.classList.remove('show');
+  if (_voz) _voz.textContent = '';
   if (!silencioso) document.getElementById('btnHold').textContent = '🔓 Travado';
-  setTimeout(() => document.getElementById('lockInput').focus(), 300);
+}
+// Revela a barra de senha ao clicar no olho (foco no polvo)
+function revelarSenha(){
+  var eye = document.getElementById('lockEye'), bar = document.getElementById('lockBar');
+  if (eye) eye.classList.add('hide');
+  if (bar) bar.classList.add('show');
+  var i = document.getElementById('lockInput');
+  if (i) setTimeout(function(){ i.focus(); }, 60);
 }
 
 function tentarDesbloquear() {
@@ -3262,6 +3314,8 @@ function setStatus(s) {
   const dot = document.getElementById('vsDot');
   const lbl = document.getElementById('vsLabel');
   const wb  = document.getElementById('waveBars');
+  const zv  = document.getElementById('zVortex');
+  if (zv) zv.className = 'zvortex' + (s === 'processando' ? ' pensando' : s === 'falando' ? ' falando' : '');
   el.className = 'voice-status';
   dot.className = 'vs-dot';
   if (wb) wb.classList.remove('show');
