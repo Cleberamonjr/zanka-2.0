@@ -3261,9 +3261,67 @@ function projetoCtx(mensagem) {
 // CONTROLES DE VOZ E SILÊNCIO
 // ═══════════════════════════════════════
 
+// ── ESCUTA VIA WHISPER (OpenAI) — grava o áudio e transcreve, sem depender do Google ──
+let mediaRec = null, audioChunks = [], gravandoWhisper = false, micStreamW = null;
+async function gravarWhisperToggle(btn) {
+  btn = btn || document.getElementById('btnVoz');
+  if (gravandoWhisper) {           // segunda ação: parar e transcrever
+    gravandoWhisper = false;
+    try { mediaRec && mediaRec.stop(); } catch(e){}
+    btn.textContent = '⏳ Transcrevendo...';
+    setStatus('processando');
+    return;
+  }
+  try {
+    micStreamW = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch(e) { addMsg('Não consegui acessar o microfone (' + (e.name||e.message) + ').', false); return; }
+  audioChunks = [];
+  try { mediaRec = new MediaRecorder(micStreamW); }
+  catch(e) { addMsg('Seu navegador não suporta gravação de áudio.', false); return; }
+  mediaRec.ondataavailable = (ev) => { if (ev.data && ev.data.size) audioChunks.push(ev.data); };
+  mediaRec.onstop = async () => {
+    try { micStreamW.getTracks().forEach(t => t.stop()); } catch(e){}
+    const blob = new Blob(audioChunks, { type: mediaRec.mimeType || 'audio/webm' });
+    const texto = await transcreverWhisper(blob);
+    btn.textContent = '🎤 Clique para falar';
+    btn.style.cssText = 'background:rgba(52,211,153,.15);color:#34d399;border-color:rgba(52,211,153,.4);font-weight:700;';
+    if (texto && texto.trim().length > 1) { document.getElementById('inp').value=''; enviarTexto(texto.trim()); }
+    else { setStatus('pronto'); }
+  };
+  mediaRec.start();
+  gravandoWhisper = true;
+  setStatus('ouvindo');
+  const vsl = document.getElementById('vsLabel'); if (vsl) vsl.textContent = 'Gravando... clique p/ enviar';
+  btn.textContent = '🔴 Gravando — clique para enviar';
+  btn.style.cssText = 'background:rgba(248,113,113,.15);color:#f87171;border-color:rgba(248,113,113,.4);font-weight:700;';
+}
+async function transcreverWhisper(blob) {
+  try {
+    const fd = new FormData();
+    const ext = (blob.type.indexOf('mp4')>=0 || blob.type.indexOf('mpeg')>=0) ? 'mp4' : 'webm';
+    fd.append('file', blob, 'audio.' + ext);
+    fd.append('model', 'whisper-1');
+    fd.append('language', 'pt');
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 20000);
+    const r = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + keyOpenAI }, body: fd, signal: ctrl.signal
+    });
+    clearTimeout(to);
+    const d = await r.json().catch(()=>({}));
+    if (!r.ok) { addMsg('Transcrição falhou (OpenAI ' + r.status + '): ' + ((d.error&&d.error.message)||'sem detalhe'), false); return ''; }
+    return d.text || '';
+  } catch(e) {
+    addMsg('Não consegui transcrever: ' + (e.name==='AbortError' ? 'a OpenAI não respondeu (rede/China?)' : e.message), false);
+    return '';
+  }
+}
+
 // Botão 🎤 — ativa microfone com permissão explícita
 async function ativarMicrofone() {
   const btn = document.getElementById('btnVoz');
+  // Se há chave OpenAI, usa Whisper (grava→transcreve) em vez do Web Speech do Google
+  if (keyOpenAI) { return gravarWhisperToggle(btn); }
 
   // Se já está ativo — desligar
   if (vozAtiva && micPermitido) {
