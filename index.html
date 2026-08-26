@@ -547,10 +547,10 @@ body{font-family:'Inter',sans-serif;background:radial-gradient(1100px 560px at 5
       <div class="welcome" id="wlScreen">
         
         <div class="wl-title">ZANKA online.</div>
-        <div class="wl-sub">Pode falar — estou ouvindo. Microfone ativo automaticamente. Ou use as sugestões abaixo para começar.</div>
+        <div class="wl-sub">Pode falar — estou ouvindo. Microfone disponível. Clique em "Clique para falar" para iniciar a escuta.</div>
         <div class="wl-voice" style="background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.3);">
           <div class="vs-dot pulse" style="background:var(--green)"></div>
-          Clique em "Clique para falar" no topo para ativar o microfone
+          Clique em "Clique para falar" no menu para ativar o microfone
         </div>
         <div class="wl-grid">
           <div class="wl-card" onclick="enviarTexto('bom dia ZANKA')">
@@ -3317,44 +3317,18 @@ async function transcreverWhisper(blob) {
   }
 }
 
-// Botão 🎤 — ativa microfone com permissão explícita
-async function ativarMicrofone() {
-  const btn = document.getElementById('btnVoz');
-  // Se há chave OpenAI, usa Whisper (grava→transcreve) em vez do Web Speech do Google
-  if (keyOpenAI) { return gravarWhisperToggle(btn); }
-
-  // Se já está ativo — desligar
-  if (vozAtiva && micPermitido) {
-    vozAtiva = false;
-    deveOuvir = false;
-    if (reconhecimento) { try { reconhecimento.abort(); } catch(e){} }
-    window.speechSynthesis.cancel();
-    btn.textContent = '🎤 Clique para falar';
-    btn.style.cssText = 'background:rgba(52,211,153,.15);color:#34d399;border-color:rgba(52,211,153,.4);font-weight:700;';
-    setStatus('pronto');
-    return;
-  }
-
-  // Pedir permissão de microfone (obrigatório no browser)
-  btn.textContent = '⏳ Ativando...';
-  btn.style.cssText = '';
-  const ok = await pedirPermissaoMic();
-
-  if (ok) {
-    vozAtiva = true;
-    deveOuvir = true;
-    btn.textContent = '🔴 Ouvindo — clique para pausar';
-    btn.style.cssText = 'background:rgba(248,113,113,.15);color:#f87171;border-color:rgba(248,113,113,.4);font-weight:700;';
-    cicloEscuta();
-  } else {
-    btn.textContent = '❌ Microfone bloqueado';
-    btn.style.cssText = 'background:rgba(248,113,113,.1);color:#f87171;';
-    setTimeout(() => {
-      btn.textContent = '🎤 Clique para falar';
-      btn.style.cssText = 'background:rgba(52,211,153,.15);color:#34d399;border-color:rgba(52,211,153,.4);font-weight:700;';
-    }, 3000);
-  }
-}
+// VOICE ENGINE v3 — Web Speech first; ElevenLabs Scribe/OpenAI fallback
+let voiceEngine = 'idle'; let voiceRunToken = 0; let speechRecognitionActive = false;
+function getSpeechRecognitionCtor(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+function atualizarStatusVozSeguro(label, estado='pronto'){ try{setStatus(estado);}catch(e){} const el=document.getElementById('vsLabel'); if(el) el.textContent=label; }
+function mostrarErroVoz(msg){ console.warn('[ZANKA VOICE]',msg); const el=document.getElementById('vsLabel'); if(el) el.textContent='Voz: '+msg; }
+function escolherMimeAudio(){ const c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus']; if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return ''; return c.find(x=>MediaRecorder.isTypeSupported(x))||''; }
+function extAudioMime(m){ m=String(m||'').toLowerCase(); if(m.includes('mp4'))return'mp4'; if(m.includes('ogg'))return'ogg'; if(m.includes('mpeg')||m.includes('mp3'))return'mp3'; if(m.includes('wav'))return'wav'; return'webm'; }
+async function iniciarVoz(){ const SR=getSpeechRecognitionCtor(); if(!SR){ atualizarStatusVozSeguro('Voz: clique para gravar','pronto'); return false; } atualizarStatusVozSeguro('Voz: pronta — clique para falar','pronto'); return true; }
+function cicloEscuta(){ const SR=getSpeechRecognitionCtor(); if(!SR||!vozAtiva||!deveOuvir||falando||processando)return false; if(speechRecognitionActive){try{reconhecimento.abort();}catch(e){}} const run=++voiceRunToken; reconhecimento=new SR(); reconhecimento.lang='pt-BR'; reconhecimento.continuous=false; reconhecimento.interimResults=true; reconhecimento.maxAlternatives=1; let finalText='',interim=''; reconhecimento.onstart=()=>{speechRecognitionActive=true;voiceEngine='web-speech';setStatus('ouvindo');document.getElementById('micBar')?.classList.add('show');}; reconhecimento.onresult=e=>{interim='';finalText='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i]?.[0]?.transcript||'';if(e.results[i].isFinal)finalText+=t;else interim+=t;}const inp=document.getElementById('inp');if(inp)inp.value=finalText||interim;}; reconhecimento.onend=()=>{speechRecognitionActive=false;document.getElementById('micBar')?.classList.remove('show');const text=finalText.trim(),inp=document.getElementById('inp');if(text.length>1&&run===voiceRunToken&&!processando&&!falando){if(inp)inp.value='';enviarTexto(text);return;}if(vozAtiva&&deveOuvir&&!falando&&!processando&&run===voiceRunToken)setTimeout(()=>{if(vozAtiva&&deveOuvir&&!falando&&!processando)cicloEscuta();},350);else setStatus('pronto');}; reconhecimento.onerror=e=>{speechRecognitionActive=false;document.getElementById('micBar')?.classList.remove('show');const err=e?.error||'unknown';mostrarErroVoz(err);if(err==='aborted')return;if(['network','service-not-allowed','not-allowed','audio-capture'].includes(err)){voiceEngine='fallback';vozAtiva=false;deveOuvir=false;setStatus('pronto');const btn=document.getElementById('btnVoz');if(btn)btn.textContent=(keyElevenLabs||keyOpenAI)?'🎤 Clique para gravar':'🎤 Microfone indisponível';return;}if(vozAtiva&&deveOuvir&&!falando&&!processando)setTimeout(()=>cicloEscuta(),700);}; try{reconhecimento.start();return true;}catch(e){speechRecognitionActive=false;mostrarErroVoz('start-'+(e.name||'erro'));return false;} }
+async function gravarFallbackToggle(btn){ btn=btn||document.getElementById('btnVoz'); if(gravandoWhisper){gravandoWhisper=false;try{mediaRec&&mediaRec.stop();}catch(e){}if(btn)btn.textContent='⏳ Transcrevendo...';setStatus('processando');return;} if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){mostrarErroVoz('gravação não suportada');return;} try{micStreamW=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});audioChunks=[];const mime=escolherMimeAudio();mediaRec=mime?new MediaRecorder(micStreamW,{mimeType:mime}):new MediaRecorder(micStreamW);mediaRec.ondataavailable=ev=>{if(ev.data&&ev.data.size)audioChunks.push(ev.data);};mediaRec.onstop=async()=>{try{micStreamW?.getTracks().forEach(t=>t.stop());}catch(e){}const blob=new Blob(audioChunks,{type:mediaRec?.mimeType||'audio/webm'});const texto=await transcreverVozFallback(blob);if(btn){btn.textContent='🎤 Clique para falar';btn.style.cssText='';}if(texto&&texto.trim().length>1){const inp=document.getElementById('inp');if(inp)inp.value='';enviarTexto(texto.trim());}else setStatus('pronto');};mediaRec.start(250);gravandoWhisper=true;voiceEngine=keyElevenLabs?'eleven-scribe':'openai-whisper';setStatus('ouvindo');const vsl=document.getElementById('vsLabel');if(vsl)vsl.textContent='Gravando... clique novamente para enviar';if(btn){btn.textContent='🔴 Gravando — clique para enviar';btn.style.cssText='background:rgba(248,113,113,.15);color:#f87171;border-color:rgba(248,113,113,.4);font-weight:700;'}}catch(e){mostrarErroVoz(e.name||e.message||'microfone bloqueado');setStatus('pronto');}}
+async function transcreverVozFallback(blob){ if(keyElevenLabs){try{const fd=new FormData();fd.append('file',blob,'audio.'+extAudioMime(blob.type));fd.append('model_id','scribe_v2');fd.append('language_code','por');const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),30000);const r=await fetch('https://api.elevenlabs.io/v1/speech-to-text',{method:'POST',headers:{'xi-api-key':keyElevenLabs},body:fd,signal:ctrl.signal});clearTimeout(to);const d=await r.json().catch(()=>({}));if(r.ok&&d.text)return d.text;console.warn('[ZANKA Scribe]',r.status,d);}catch(e){console.warn('[ZANKA Scribe fallback]',e);}} if(keyOpenAI){try{const fd=new FormData();fd.append('file',blob,'audio.'+extAudioMime(blob.type));fd.append('model','whisper-1');fd.append('language','pt');const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),30000);const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{method:'POST',headers:{'Authorization':'Bearer '+keyOpenAI},body:fd,signal:ctrl.signal});clearTimeout(to);const d=await r.json().catch(()=>({}));if(r.ok&&d.text)return d.text;console.warn('[ZANKA Whisper]',r.status,d);}catch(e){console.warn('[ZANKA Whisper fallback]',e);}} mostrarErroVoz('STT indisponível');return ''; }
+async function ativarMicrofone(){ const btn=document.getElementById('btnVoz'); if(gravandoWhisper)return gravarFallbackToggle(btn); if(vozAtiva&&deveOuvir&&speechRecognitionActive){vozAtiva=false;deveOuvir=false;++voiceRunToken;try{reconhecimento?.abort();}catch(e){}speechRecognitionActive=false;document.getElementById('micBar')?.classList.remove('show');if(btn)btn.textContent='🎤 Clique para falar';setStatus('pronto');return;} try{const ok=await pedirPermissaoMic();if(!ok){mostrarErroVoz('permissão negada');if(btn)btn.textContent='❌ Microfone bloqueado';setTimeout(()=>{if(btn)btn.textContent='🎤 Clique para falar';},2500);return;}}catch(e){mostrarErroVoz(e.name||'microfone');return;} const SR=getSpeechRecognitionCtor(); if(SR){vozAtiva=true;deveOuvir=true;voiceEngine='web-speech';if(btn)btn.textContent='🔴 Ouvindo — clique para pausar';if(cicloEscuta())return;} vozAtiva=false;deveOuvir=false;if(keyElevenLabs||keyOpenAI)return gravarFallbackToggle(btn);mostrarErroVoz('Speech Recognition não disponível');setStatus('pronto'); }
 
 // Botão 🔇 — modo silencioso (sem voz, só texto)
 function toggleSilencio() {
