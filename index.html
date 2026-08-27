@@ -460,6 +460,7 @@ body{font-family:'Inter',sans-serif;background:radial-gradient(1100px 560px at 5
       <div class="menu-dropdown" id="menuDropdown">
         <div class="menu-info">Voz</div>
         <button class="menu-item" id="btnVoz" onclick="ativarMicrofone()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg> Clique para falar</button>
+        <button class="menu-item" id="btnConvAuto" onclick="toggleConversaAuto()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><circle cx="19" cy="4" r="2.4" fill="currentColor" stroke="none"/></svg> Conversa automática (mãos livres)</button>
         <button class="menu-item" id="btnSilencio" onclick="toggleSilencio()"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><path d="M9 9v3a3 3 0 0 0 5.1 2.1"/><path d="M15 9.3V5a3 3 0 0 0-5.9-.6"/><path d="M5 10v1a7 7 0 0 0 11 5.7"/><line x1="12" y1="19" x2="12" y2="22"/></svg> Modo silêncio</button>
         <div class="menu-info" id="ttsInfo"><svg class="mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg> Voz: Google TTS</div>
         <div class="menu-sep"></div>
@@ -3387,6 +3388,81 @@ async function transcreverWhisper(blob) {
     addMsg('Não consegui transcrever: ' + (e.name === 'AbortError' ? 'o servidor não respondeu' : e.message), false);
     return '';
   }
+}
+
+// ── CONVERSA AUTOMÁTICA (VAD) — escuta o volume, grava sua fala e transcreve sozinho a cada pausa ──
+let convAuto = false, vadStream = null, vadCtx = null, vadAnalyser = null, vadData = null;
+let vadRec = null, vadChunks = [], vadGravando = false, vadSilTimer = null, vadRaf = null;
+async function toggleConversaAuto() {
+  fecharMenu();
+  if (convAuto) { pararConversaAuto(); return; }
+  try { vadStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch (e) { addMsg('Não consegui acessar o microfone (' + (e.name || e.message) + ').', false); return; }
+  convAuto = true;
+  try {
+    vadCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = vadCtx.createMediaStreamSource(vadStream);
+    vadAnalyser = vadCtx.createAnalyser(); vadAnalyser.fftSize = 1024;
+    vadData = new Uint8Array(vadAnalyser.fftSize);
+    src.connect(vadAnalyser);
+  } catch (e) { convAuto = false; addMsg('Não consegui iniciar a análise de áudio.', false); return; }
+  atualizarBotaoAuto();
+  addMsg('🟢 Conversa automática ligada. Pode falar naturalmente — eu escuto e respondo sozinho.', false);
+  setStatus('ouvindo');
+  loopVAD();
+}
+function pararConversaAuto() {
+  convAuto = false;
+  try { if (vadRec && vadRec.state !== 'inactive') vadRec.stop(); } catch (e) {}
+  if (vadRaf) cancelAnimationFrame(vadRaf);
+  clearTimeout(vadSilTimer); vadSilTimer = null;
+  try { if (vadStream) vadStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+  try { if (vadCtx) vadCtx.close(); } catch (e) {}
+  vadStream = null; vadCtx = null; vadGravando = false;
+  atualizarBotaoAuto();
+  setStatus('pronto');
+}
+function loopVAD() {
+  if (!convAuto) return;
+  vadRaf = requestAnimationFrame(loopVAD);
+  if (falando || processando) return; // não escuta enquanto o ZANKA fala/pensa (evita capturar a própria voz)
+  vadAnalyser.getByteTimeDomainData(vadData);
+  let soma = 0;
+  for (let i = 0; i < vadData.length; i++) { const v = (vadData[i] - 128) / 128; soma += v * v; }
+  const rms = Math.sqrt(soma / vadData.length);
+  const limiar = parseFloat(localStorage.getItem('zanka_vad_limiar') || '0.035');
+  const pausaMs = parseInt(localStorage.getItem('zanka_pausa_ms') || '2000', 10);
+  if (rms > limiar) {
+    if (!vadGravando) iniciarGravacaoVAD();
+    clearTimeout(vadSilTimer); vadSilTimer = null;
+  } else if (vadGravando && !vadSilTimer) {
+    vadSilTimer = setTimeout(finalizarGravacaoVAD, pausaMs);
+  }
+}
+function iniciarGravacaoVAD() {
+  vadChunks = [];
+  try { vadRec = new MediaRecorder(vadStream); } catch (e) { return; }
+  vadRec.ondataavailable = (ev) => { if (ev.data && ev.data.size) vadChunks.push(ev.data); };
+  vadRec.onstop = async () => {
+    vadGravando = false;
+    const blob = new Blob(vadChunks, { type: vadRec.mimeType || 'audio/webm' });
+    if (blob.size < 1400) { if (convAuto && !falando && !processando) setStatus('ouvindo'); return; } // trecho curto demais, ignora
+    setStatus('processando');
+    const texto = await transcreverWhisper(blob);
+    if (texto && texto.trim().length > 1) enviarTexto(texto.trim());
+    else if (convAuto && !falando && !processando) setStatus('ouvindo');
+  };
+  vadRec.start();
+  vadGravando = true;
+  setStatus('ouvindo');
+}
+function finalizarGravacaoVAD() {
+  clearTimeout(vadSilTimer); vadSilTimer = null;
+  try { if (vadRec && vadRec.state !== 'inactive') vadRec.stop(); } catch (e) {}
+}
+function atualizarBotaoAuto() {
+  const b = document.getElementById('btnConvAuto');
+  if (b) b.style.color = convAuto ? '#34d399' : '';
 }
 
 // Botão 🎤 — ativa microfone com permissão explícita
