@@ -3019,16 +3019,25 @@ async function executarConector(id, payloadText) {
     return 'Registro inserido no Supabase ✅';
   }
 
-  // webhook / http
+  // webhook / http — o fantasma n8n (URL vazia ou n8n.cloud) cai na ESPINHA do Supabase
+  const ehEspinha = (!c.url || /n8n\.cloud/i.test(c.url));
+  const alvo = ehEspinha ? ZACAO() : c.url;
   const metodo = (tipo === 'http' && (c.extra||'').toUpperCase() === 'GET') ? 'GET' : 'POST';
   const opt = { method: metodo, headers: { 'Content-Type':'application/json' } };
   if (c.key) opt.headers['Authorization'] = 'Bearer ' + c.key;
   if (metodo !== 'GET') opt.body = JSON.stringify(tentarJson(payloadText));
-  const r = await fetch(c.url, opt);
+  const r = await fetch(alvo, opt);
+  if (ehEspinha) {
+    const d = await r.json().catch(()=>({}));
+    if (d.ok) return 'Ação executada pela espinha ✅';
+    if (d.pendente) return d.msg || 'Braço ainda não plugado.';
+    throw new Error(d.error || d.msg || ('HTTP ' + r.status));
+  }
   const txt = await r.text();
   if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + txt.slice(0,200));
   return (txt && txt.slice(0,500)) || ('OK (HTTP ' + r.status + ')');
 }
+function ZACAO(){ const base=(localStorage.getItem('zanka_corpo_url')||'https://ltvxslyljckqfrmpeatr.supabase.co').replace(/\/+$/,''); return base+'/functions/v1/acao'; }
 
 // Handler do botão "Acionar" no painel
 async function acionarConectorUI(id) {
