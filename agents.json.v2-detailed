@@ -1,0 +1,617 @@
+{
+  "version": "1.0.0",
+  "name": "ZANKA HQ - 17 Agent Operating System",
+  "description": "Clebe Jr's autonomous AI CEO system for Luxi PWA + Shopee Affiliate. 24/7 operation, 5000 leads/month target.",
+  "owner": "Clebe Jr (cleberamonjr)",
+  "baseUrl": "https://zanka-hq.cleberamonjr.app",
+  "lastUpdated": "2026-10-03T15:43:21Z",
+  "activationTime": "2026-10-03T19:00:00-03:00",
+  "timezone": "America/Sao_Paulo",
+  
+  "infrastructure": {
+    "supabase": {
+      "url": "https://eraxjtfedswksiyigasf.supabase.co",
+      "project": "lumi",
+      "region": "São Paulo"
+    },
+    "zapier": {
+      "baseUrl": "https://hooks.zapier.com/hooks/catch",
+      "status": "ACTIVE"
+    },
+    "claude": {
+      "model": "claude-sonnet-4-6",
+      "endpoint": "https://api.anthropic.com/v1/messages",
+      "agents": ["HECTOR"]
+    },
+    "slack": {
+      "webhook": "https://hooks.slack.com/services/[YOUR_WEBHOOK]",
+      "channel": "#zanka-reports"
+    }
+  },
+
+  "agents": [
+    {
+      "id": "ZANKA",
+      "name": "ZANKA",
+      "title": "CEO - Strategy & Orchestration",
+      "tier": "Tier 1: Orchestration & Decision",
+      "aiProvider": "DeepSeek",
+      "schedule": "08:00 Asia/Shanghai daily",
+      "responsibilities": [
+        "Daily standup & strategy",
+        "Agent dispatching",
+        "Decision making",
+        "KPI monitoring",
+        "Crisis management"
+      ],
+      "integrations": ["Slack", "Supabase", "Zapier"],
+      "outputs": ["Daily report to Clebe", "Agent queue dispatch"],
+      "endpoints": [
+        {
+          "name": "daily_standup",
+          "method": "POST",
+          "url": "/webhook/zanka-daily-standup",
+          "description": "CEO standup - analyze metrics, dispatch agents"
+        },
+        {
+          "name": "emergency_override",
+          "method": "POST",
+          "url": "/webhook/zanka-manual-trigger",
+          "description": "Manual command from Clebe via /zanka slash command"
+        }
+      ],
+      "metrics": ["leads/day", "trials", "revenue", "agent_health"]
+    },
+    {
+      "id": "DIANA",
+      "name": "DIANA",
+      "title": "CFO - BI & Analytics",
+      "tier": "Tier 1: Orchestration & Decision",
+      "aiProvider": "DeepSeek",
+      "schedule": "07:00 Asia/Shanghai daily",
+      "responsibilities": [
+        "Daily metrics consolidation",
+        "ROI forecasting",
+        "Budget tracking",
+        "Data validation",
+        "Pre-standup intel for ZANKA"
+      ],
+      "integrations": ["Supabase", "Google Sheets", "Zapier"],
+      "outputs": ["Dashboard update", "ZANKA brief", "Weekly report"],
+      "endpoints": [
+        {
+          "name": "daily_analytics",
+          "method": "POST",
+          "url": "/webhook/diana-daily-analytics",
+          "description": "Consolidate all metrics - feeds ZANKA standup"
+        }
+      ],
+      "metrics": ["leads_cost", "cac", "ltv", "runway"]
+    },
+    {
+      "id": "NEJI",
+      "name": "NEJI",
+      "title": "COO - QA & Project Management",
+      "tier": "Tier 1: Orchestration & Decision",
+      "aiProvider": "DeepSeek",
+      "schedule": "23:00 daily",
+      "responsibilities": [
+        "QA all 16 agents",
+        "Issue detection",
+        "Performance audit",
+        "Workflow validation",
+        "Daily report generation"
+      ],
+      "integrations": ["Supabase", "GitHub", "Slack"],
+      "outputs": ["QA report", "Issues log", "Recommendations"],
+      "endpoints": [
+        {
+          "name": "daily_qa_audit",
+          "method": "POST",
+          "url": "/webhook/neji-daily-qa",
+          "description": "QA all agents - generate issues report"
+        }
+      ],
+      "metrics": ["agent_success_rate", "avg_response_time", "error_count"]
+    },
+
+    {
+      "id": "SABRINA",
+      "name": "SABRINA",
+      "title": "Content Creator - Viral Posts & Ideas",
+      "tier": "Tier 2: Marketing & Content",
+      "aiProvider": "Gemini",
+      "schedule": "00:00 → 06:00 daily",
+      "responsibilities": [
+        "Content ideation (24h cycle)",
+        "Trending topic monitoring",
+        "Post caption writing",
+        "Engagement prediction",
+        "Content approval workflow"
+      ],
+      "integrations": ["Instagram API", "TikTok API", "Zapier", "Supabase"],
+      "outputs": ["Content ideas", "Post queue", "Hashtags"],
+      "endpoints": [
+        {
+          "name": "ideation_cycle",
+          "method": "POST",
+          "url": "/webhook/sabrina-ideation",
+          "description": "Generate 10 content ideas for next 24h"
+        },
+        {
+          "name": "caption_generation",
+          "method": "POST",
+          "url": "/webhook/sabrina-captions",
+          "description": "Write viral captions for posts"
+        }
+      ],
+      "metrics": ["post_impressions", "engagement_rate", "viral_score"]
+    },
+    {
+      "id": "FRED",
+      "name": "FRED",
+      "title": "Copywriter - SEO & Sales Copy",
+      "tier": "Tier 2: Marketing & Content",
+      "aiProvider": "Gemini",
+      "schedule": "00:00 daily",
+      "responsibilities": [
+        "SEO-optimized copywriting",
+        "Landing page copy",
+        "Email subject lines",
+        "Ad copy variants (A/B test)",
+        "WhatsApp templates"
+      ],
+      "integrations": ["Zapier", "Supabase", "Email API"],
+      "outputs": ["Copy variants", "Ad creatives", "Email templates"],
+      "endpoints": [
+        {
+          "name": "copy_variants",
+          "method": "POST",
+          "url": "/webhook/fred-copy-variants",
+          "description": "Generate 5+ copy variants for testing"
+        }
+      ],
+      "metrics": ["ctr", "conversion_rate", "keyword_ranking"]
+    },
+    {
+      "id": "LUDMILO",
+      "name": "LUDMILO",
+      "title": "Designer - Graphics & Landing Pages",
+      "tier": "Tier 2: Marketing & Content",
+      "aiProvider": "Gemini",
+      "schedule": "06:00 daily",
+      "responsibilities": [
+        "Instagram post designs",
+        "Landing page layouts",
+        "Ad banner creation",
+        "Brand consistency",
+        "Design approval"
+      ],
+      "integrations": ["Canva API", "Figma", "Zapier"],
+      "outputs": ["Design files", "Ad banners", "HTML landing pages"],
+      "endpoints": [
+        {
+          "name": "design_generation",
+          "method": "POST",
+          "url": "/webhook/ludmilo-designs",
+          "description": "Create 3+ design variations for post"
+        }
+      ],
+      "metrics": ["design_ctr", "landing_page_cr", "design_time"]
+    },
+    {
+      "id": "NIX",
+      "name": "NIX",
+      "title": "Growth Strategist - Acquisition Channels",
+      "tier": "Tier 2: Marketing & Content",
+      "aiProvider": "DeepSeek",
+      "schedule": "12:00 daily",
+      "responsibilities": [
+        "Channel performance analysis",
+        "Growth experiment planning",
+        "Funnel optimization",
+        "New channel testing",
+        "Budget allocation strategy"
+      ],
+      "integrations": ["Google Analytics", "Zapier", "Supabase"],
+      "outputs": ["Strategy recommendations", "Test plans", "Channel reports"],
+      "endpoints": [
+        {
+          "name": "growth_analysis",
+          "method": "POST",
+          "url": "/webhook/nix-growth-strategy",
+          "description": "Analyze channels, recommend optimizations"
+        }
+      ],
+      "metrics": ["channel_roi", "cost_per_acquisition", "growth_rate"]
+    },
+    {
+      "id": "MBAKU",
+      "name": "MBAKU",
+      "title": "Paid Traffic Manager - Ads & Budget",
+      "tier": "Tier 2: Marketing & Content",
+      "aiProvider": "Claude Sonnet (test)",
+      "schedule": "18:00 daily",
+      "responsibilities": [
+        "Ad campaign optimization",
+        "A/B testing setup",
+        "Bid optimization",
+        "Audience segmentation",
+        "Budget reallocation"
+      ],
+      "integrations": ["Facebook Ads API", "Google Ads API", "Zapier"],
+      "outputs": ["Ad optimizations", "Campaign adjustments", "Test reports"],
+      "endpoints": [
+        {
+          "name": "ad_optimization",
+          "method": "POST",
+          "url": "/webhook/mbaku-ad-optimization",
+          "description": "Optimize campaigns - pause underperformers, scale winners"
+        }
+      ],
+      "metrics": ["cpc", "cpa", "roas", "ad_spend_efficiency"]
+    },
+
+    {
+      "id": "GALDINO",
+      "name": "GALDINO",
+      "title": "CRM Manager - Pipeline & Data",
+      "tier": "Tier 3: Sales & Pipeline",
+      "aiProvider": "GLM",
+      "schedule": "12:00 daily",
+      "responsibilities": [
+        "CRM data updates",
+        "Pipeline cleansing",
+        "Lead scoring",
+        "Segment creation",
+        "Data quality checks"
+      ],
+      "integrations": ["Supabase", "Zapier", "RD Station (or alternative)"],
+      "outputs": ["Updated CRM", "Lead lists", "Segment reports"],
+      "endpoints": [
+        {
+          "name": "crm_update",
+          "method": "POST",
+          "url": "/webhook/galdino-crm-sync",
+          "description": "Update CRM - sync new leads, update statuses"
+        }
+      ],
+      "metrics": ["data_quality", "lead_count", "segment_size"]
+    },
+    {
+      "id": "LUNA",
+      "name": "LUNA",
+      "title": "Sales Dev Rep - Lead Qualification",
+      "tier": "Tier 3: Sales & Pipeline",
+      "aiProvider": "Gemini",
+      "schedule": "10:00 daily",
+      "responsibilities": [
+        "Lead qualification via WhatsApp",
+        "Trial offer messaging",
+        "Pain point discovery",
+        "Objection handling",
+        "Handoff to MARCUS"
+      ],
+      "integrations": ["WhatsApp Business API", "Supabase", "Zapier"],
+      "outputs": ["Qualified leads", "Chat logs", "Handoff notes"],
+      "endpoints": [
+        {
+          "name": "lead_qualification",
+          "method": "POST",
+          "url": "/webhook/luna-qualification",
+          "description": "Message new leads - qualify them"
+        }
+      ],
+      "metrics": ["qualification_rate", "response_time", "avg_message_count"]
+    },
+    {
+      "id": "MARCUS",
+      "name": "MARCUS",
+      "title": "Closer - Sales Follow-up & Conversion",
+      "tier": "Tier 3: Sales & Pipeline",
+      "aiProvider": "GLM",
+      "schedule": "10:00 → 18:00 ongoing",
+      "responsibilities": [
+        "Warm lead follow-up",
+        "Close trials to paid",
+        "Negotiation assistance",
+        "Payment processing",
+        "Success onboarding intro"
+      ],
+      "integrations": ["WhatsApp API", "Stripe API", "Supabase"],
+      "outputs": ["Closed deals", "Invoices", "Onboarding briefs"],
+      "endpoints": [
+        {
+          "name": "follow_up",
+          "method": "POST",
+          "url": "/webhook/marcus-follow-up",
+          "description": "Follow up on warm leads - close sales"
+        }
+      ],
+      "metrics": ["trial_to_paid_rate", "avg_deal_size", "close_time"]
+    },
+    {
+      "id": "IRIS",
+      "name": "IRIS",
+      "title": "Customer Success - Onboarding & Retention",
+      "tier": "Tier 3: Sales & Pipeline",
+      "aiProvider": "GLM",
+      "schedule": "12:00 daily",
+      "responsibilities": [
+        "Onboarding sequences",
+        "Feature walkthroughs",
+        "Usage monitoring",
+        "Churn prevention",
+        "Reactivation campaigns"
+      ],
+      "integrations": ["Email API", "Supabase", "Product tracking"],
+      "outputs": ["Onboarding emails", "Reactivation sequences", "NPS surveys"],
+      "endpoints": [
+        {
+          "name": "onboarding_sequence",
+          "method": "POST",
+          "url": "/webhook/iris-onboarding",
+          "description": "Send onboarding emails to new customers"
+        },
+        {
+          "name": "reactivation",
+          "method": "POST",
+          "url": "/webhook/iris-reactivation",
+          "description": "Identify and reactivate dormant users"
+        }
+      ],
+      "metrics": ["onboarding_completion", "days_to_first_sale", "churn_rate"]
+    },
+
+    {
+      "id": "JOÃO",
+      "name": "JOÃO",
+      "title": "B2B Partnerships - Strategic Alliances",
+      "tier": "Tier 4: Business & Operations",
+      "aiProvider": "Claude Sonnet (test)",
+      "schedule": "16:00 daily",
+      "responsibilities": [
+        "Partnership outreach",
+        "Negotiation strategy",
+        "Co-marketing deals",
+        "Affiliate program setup",
+        "Revenue share agreements"
+      ],
+      "integrations": ["Email", "LinkedIn API", "Zapier"],
+      "outputs": ["Partnership proposals", "Contracts", "Launch plans"],
+      "endpoints": [
+        {
+          "name": "partnership_outreach",
+          "method": "POST",
+          "url": "/webhook/joao-partnerships",
+          "description": "Identify and reach out to partnership prospects"
+        }
+      ],
+      "metrics": ["partnerships_signed", "revenue_from_partnerships", "lead_quality"]
+    },
+    {
+      "id": "MIKIMBA",
+      "name": "MIKIMBA",
+      "title": "Prospector - New Market Expansion",
+      "tier": "Tier 4: Business & Operations",
+      "aiProvider": "GLM",
+      "schedule": "16:00 daily",
+      "responsibilities": [
+        "Market research",
+        "New audience identification",
+        "Competitor analysis",
+        "Niche opportunity discovery",
+        "Expansion roadmap"
+      ],
+      "integrations": ["Google Trends", "Social media APIs", "Zapier"],
+      "outputs": ["Market reports", "Opportunity lists", "Expansion plans"],
+      "endpoints": [
+        {
+          "name": "market_research",
+          "method": "POST",
+          "url": "/webhook/mikimba-prospecting",
+          "description": "Identify new markets and opportunities"
+        }
+      ],
+      "metrics": ["new_markets_identified", "market_size_estimates", "expansion_velocity"]
+    },
+    {
+      "id": "HECTOR_BONILHA",
+      "name": "HECTOR BONILHA",
+      "title": "Developer - APIs, Automations & Debugging",
+      "tier": "Tier 4: Business & Operations",
+      "aiProvider": "Claude Sonnet 4.6",
+      "schedule": "14:00 daily + on-demand",
+      "responsibilities": [
+        "API integrations",
+        "Automation debugging",
+        "Workflow optimization",
+        "Tech infrastructure",
+        "Critical bug fixes"
+      ],
+      "integrations": ["GitHub", "Zapier", "Supabase", "Claude API"],
+      "outputs": ["API fixes", "Automated workflows", "Tech optimizations"],
+      "endpoints": [
+        {
+          "name": "bug_fix",
+          "method": "POST",
+          "url": "/webhook/hector-debug",
+          "description": "Debug and fix API/automation issues"
+        },
+        {
+          "name": "api_integration",
+          "method": "POST",
+          "url": "/webhook/hector-integration",
+          "description": "Build new API integrations"
+        }
+      ],
+      "metrics": ["uptime", "bug_fix_time", "api_success_rate"]
+    },
+
+    {
+      "id": "ANINHA",
+      "name": "ANINHA",
+      "title": "Email Marketing - Campaigns & Reactivation",
+      "tier": "Tier 5: Engagement & Community",
+      "aiProvider": "Gemini",
+      "schedule": "20:00 daily",
+      "responsibilities": [
+        "Email campaign scheduling",
+        "Segment-based messaging",
+        "Reactivation sequences",
+        "Newsletter content",
+        "UTM tracking"
+      ],
+      "integrations": ["Email API", "Zapier", "Supabase"],
+      "outputs": ["Scheduled emails", "Campaign reports", "Engagement metrics"],
+      "endpoints": [
+        {
+          "name": "email_campaign",
+          "method": "POST",
+          "url": "/webhook/aninha-email",
+          "description": "Send email campaigns to segments"
+        }
+      ],
+      "metrics": ["open_rate", "click_rate", "unsubscribe_rate"]
+    },
+    {
+      "id": "JONNY",
+      "name": "JONNY",
+      "title": "Community Manager - Engagement & Response",
+      "tier": "Tier 5: Engagement & Community",
+      "aiProvider": "Gemini",
+      "schedule": "20:00 daily",
+      "responsibilities": [
+        "Comment moderation",
+        "DM responses",
+        "Community engagement",
+        "Sentiment monitoring",
+        "Feedback collection"
+      ],
+      "integrations": ["Instagram API", "Facebook API", "Zapier"],
+      "outputs": ["Engagement reports", "Community insights", "Feedback logs"],
+      "endpoints": [
+        {
+          "name": "engagement_cycle",
+          "method": "POST",
+          "url": "/webhook/jonny-engagement",
+          "description": "Respond to comments and DMs"
+        }
+      ],
+      "metrics": ["response_rate", "sentiment_score", "community_size"]
+    }
+  ],
+
+  "workflows": [
+    {
+      "name": "Daily Activation Cycle",
+      "startTime": "2026-10-03T19:00:00-03:00",
+      "frequency": "24h",
+      "steps": [
+        {
+          "time": "00:00",
+          "agents": ["SABRINA", "FRED"],
+          "task": "Content ideation + copywriting"
+        },
+        {
+          "time": "06:00",
+          "agents": ["SABRINA", "LUDMILO"],
+          "task": "Content approval + design"
+        },
+        {
+          "time": "07:00",
+          "agents": ["DIANA"],
+          "task": "Metrics consolidation for standup"
+        },
+        {
+          "time": "08:00",
+          "agents": ["DIANA", "ZANKA", "NEJI"],
+          "task": "Daily standup + agent dispatch"
+        },
+        {
+          "time": "10:00",
+          "agents": ["LUNA", "MARCUS"],
+          "task": "Lead qualification + closing"
+        },
+        {
+          "time": "12:00",
+          "agents": ["GALDINO", "IRIS", "NIX"],
+          "task": "CRM update + CS + growth analysis"
+        },
+        {
+          "time": "14:00",
+          "agents": ["HECTOR_BONILHA"],
+          "task": "Technical debugging + optimizations"
+        },
+        {
+          "time": "16:00",
+          "agents": ["JOÃO", "MIKIMBA"],
+          "task": "Partnerships + market prospecting"
+        },
+        {
+          "time": "18:00",
+          "agents": ["MBAKU"],
+          "task": "Ad campaign optimization"
+        },
+        {
+          "time": "20:00",
+          "agents": ["JONNY", "ANINHA"],
+          "task": "Community engagement + email campaigns"
+        },
+        {
+          "time": "23:00",
+          "agents": ["NEJI"],
+          "task": "QA audit of all agents"
+        },
+        {
+          "time": "04:00",
+          "agents": ["DIANA"],
+          "task": "Full data consolidation for next standup"
+        }
+      ]
+    }
+  ],
+
+  "kpis": {
+    "luxi": {
+      "target_leads_per_month": 5000,
+      "target_leads_per_day": 166,
+      "target_trials": 250,
+      "target_paid_conversions": 50,
+      "target_monthly_revenue": "R$ 2,950"
+    },
+    "shopee": {
+      "target_daily_clicks": 100,
+      "target_click_to_purchase": "2%",
+      "target_roi": "3x"
+    }
+  },
+
+  "guardrails": {
+    "agents_can_do": [
+      "Publish content within Luxi brand",
+      "Respond DMs 24/7",
+      "A/B test copy and schedules",
+      "Pause underperforming content",
+      "Recommend budget tests"
+    ],
+    "agents_need_approval": [
+      "Spend above [budget TBD]/week",
+      "Promise discounts > 15%",
+      "Change Luxi value proposition",
+      "Contact old leads without permission",
+      "NSFW or misleading content"
+    ]
+  },
+
+  "alerting": {
+    "slack_channel": "#zanka-reports",
+    "critical_alerts": [
+      "Agent failure",
+      "API downtime",
+      "Conversion rate drop > 20%",
+      "CAC spike > 50%",
+      "Stripe payment failure"
+    ]
+  }
+}

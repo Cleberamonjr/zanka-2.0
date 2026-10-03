@@ -1,111 +1,213 @@
 {
-  "fallback": [
-    "glm",
-    "deepseek",
-    "gemini"
-  ],
+  "version": "2.0.0",
+  "name": "ZANKA HQ - 17 Agent Operating System",
+  "description": "Clebe Jr's autonomous AI CEO system for Luxi PWA + Shopee Affiliate. 24/7 operation, 5000 leads/month target.",
+  "owner": "Clebe Jr (cleberamonjr)",
+  "lastUpdated": "2026-10-03T15:43:21Z",
+  
+  "fallback": ["glm", "deepseek", "gemini"],
+  
   "agentes": [
     {
       "id": "zanka",
       "nome": "ZANKA",
       "role": "CEO · ZANKA OS · Orquestradora · Estrategista",
-      "provider": "deepseek"
+      "provider": "deepseek",
+      "tier": "Leadership",
+      "schedule": "08:00 Asia/Shanghai",
+      "responsibilities": ["Daily standup", "Strategy", "Agent dispatch", "Decision making"],
+      "integrations": ["Slack", "Supabase", "Zapier"]
     },
     {
       "id": "diana",
       "nome": "DIANA",
       "role": "CFO · Cientista de Dados · BI · Dashboards KPI",
-      "provider": "deepseek"
+      "provider": "deepseek",
+      "tier": "Leadership",
+      "schedule": "07:00 Asia/Shanghai",
+      "responsibilities": ["Metrics consolidation", "Forecasting", "ROI tracking"],
+      "integrations": ["Supabase", "Google Sheets", "Zapier"]
     },
     {
       "id": "neji",
       "nome": "NEJI",
       "role": "COO · QA · Controle de Qualidade · Gestor de Projetos",
-      "provider": "deepseek"
+      "provider": "deepseek",
+      "tier": "Leadership",
+      "schedule": "23:00 daily",
+      "responsibilities": ["QA audit", "Issue detection", "Performance monitoring"],
+      "integrations": ["Supabase", "GitHub", "Slack"]
     },
     {
       "id": "sabrina",
       "nome": "SABRINA",
       "role": "Conteúdo Viral · Métricas Meta · Instagram · Facebook · TikTok",
-      "provider": "gemini"
+      "provider": "gemini",
+      "tier": "Marketing",
+      "schedule": "00:00 daily",
+      "responsibilities": ["Content ideation", "Trending monitoring", "Post planning"],
+      "integrations": ["Instagram API", "TikTok API", "Zapier"]
     },
     {
       "id": "fred",
       "nome": "FRED",
-      "role": "Copywriter · SEO Orgânico · Conteúdo de Longo Prazo",
-      "provider": "gemini"
+      "role": "Copywriter · SEO · Sales Copy · Email",
+      "provider": "gemini",
+      "tier": "Marketing",
+      "schedule": "00:30 daily",
+      "responsibilities": ["SEO copywriting", "Ad copy variants", "Email templates"],
+      "integrations": ["Zapier", "Supabase"]
     },
     {
       "id": "ludmilo",
       "nome": "LUDMILO",
-      "role": "Visual · UX · Landing Pages · Design · Edição",
-      "provider": "gemini"
-    },
-    {
-      "id": "mbaku",
-      "nome": "MBAKU",
-      "role": "Tráfego Pago · Meta · Google · TikTok · ROAS 4x+",
-      "provider": "glm"
+      "role": "Designer · Gráficas · Landing Pages · UX",
+      "provider": "gemini",
+      "tier": "Marketing",
+      "schedule": "06:00 daily",
+      "responsibilities": ["Graphic design", "Landing pages", "Ad banners"],
+      "integrations": ["Canva API", "Figma", "Zapier"]
     },
     {
       "id": "nix",
       "nome": "NIX",
-      "role": "Growth Strategy · ICE Score · AARRR · Benchmarking",
-      "provider": "deepseek"
+      "role": "Growth Strategy · Analytics · Channel Optimization",
+      "provider": "deepseek",
+      "tier": "Marketing",
+      "schedule": "12:00 daily",
+      "responsibilities": ["Channel analysis", "Growth experiments", "Funnel optimization"],
+      "integrations": ["Google Analytics", "Zapier", "Supabase"]
     },
     {
-      "id": "joao",
-      "nome": "JOÃO",
-      "role": "Parcerias · Afiliados · Co-marketing · B2B Global",
-      "provider": "glm"
-    },
-    {
-      "id": "hector",
-      "nome": "HECTOR BONILHA",
-      "role": "Dev Fullstack · Automações · Integrações · Sistemas",
-      "provider": "deepseek"
+      "id": "mbaku",
+      "nome": "MBAKU",
+      "role": "Paid Traffic · Google Ads · Facebook Ads · Budget Optimization",
+      "provider": "claude-sonnet",
+      "tier": "Marketing",
+      "schedule": "18:00 daily",
+      "responsibilities": ["Ad optimization", "A/B testing", "Bid management"],
+      "integrations": ["Facebook Ads API", "Google Ads API", "Zapier"]
     },
     {
       "id": "galdino",
       "nome": "GALDINO",
-      "role": "CRM · Gestão de Pipeline · Integração de Operações",
-      "provider": "glm"
+      "role": "CRM · Pipeline · Lead Management · Segmentation",
+      "provider": "glm",
+      "tier": "Sales",
+      "schedule": "12:00 daily",
+      "responsibilities": ["CRM updates", "Pipeline management", "Lead scoring"],
+      "integrations": ["Supabase", "Zapier"]
     },
     {
       "id": "luna",
       "nome": "LUNA",
-      "role": "SDR 24h · WhatsApp · Instagram DM · Qualificação",
-      "provider": "gemini"
+      "role": "Sales Dev · Lead Qualification · WhatsApp · DM",
+      "provider": "gemini",
+      "tier": "Sales",
+      "schedule": "10:00 daily",
+      "responsibilities": ["Lead qualification", "Pain point discovery", "Trial offers"],
+      "integrations": ["WhatsApp Business API", "Supabase", "Zapier"]
     },
     {
       "id": "marcus",
       "nome": "MARCUS",
-      "role": "Follow-up · Pipeline · Fechamento de Vendas",
-      "provider": "glm"
-    },
-    {
-      "id": "mikimba",
-      "nome": "MIKIMBA",
-      "role": "Prospecção Fria · Novos Mercados · Outreach",
-      "provider": "glm"
+      "role": "Closer · Sales Follow-up · Trial to Paid Conversion",
+      "provider": "glm",
+      "tier": "Sales",
+      "schedule": "10:00-18:00 ongoing",
+      "responsibilities": ["Lead follow-up", "Objection handling", "Sales closing"],
+      "integrations": ["WhatsApp API", "Stripe API", "Supabase"]
     },
     {
       "id": "iris",
       "nome": "IRIS",
-      "role": "Onboarding · Ativação · Retenção · CS",
-      "provider": "glm"
+      "role": "Customer Success · Onboarding · Retention · Churn Prevention",
+      "provider": "glm",
+      "tier": "Sales",
+      "schedule": "12:00 daily",
+      "responsibilities": ["Onboarding", "Feature education", "Reactivation"],
+      "integrations": ["Email API", "Supabase"]
+    },
+    {
+      "id": "joao",
+      "nome": "JOÃO",
+      "role": "B2B Partnerships · Strategic Alliances · Co-marketing",
+      "provider": "claude-sonnet",
+      "tier": "Business",
+      "schedule": "16:00 daily",
+      "responsibilities": ["Partnership outreach", "Negotiation", "Co-marketing deals"],
+      "integrations": ["Email", "LinkedIn API", "Zapier"]
+    },
+    {
+      "id": "mikimba",
+      "nome": "MIKIMBA",
+      "role": "Prospecting · New Markets · Market Expansion · Competitor Analysis",
+      "provider": "glm",
+      "tier": "Business",
+      "schedule": "16:00 daily",
+      "responsibilities": ["Market research", "Audience identification", "Expansion planning"],
+      "integrations": ["Google Trends", "Social APIs", "Zapier"]
+    },
+    {
+      "id": "hector_bonilha",
+      "nome": "HECTOR BONILHA",
+      "role": "Developer · APIs · Automations · Technical Debugging",
+      "provider": "claude-sonnet",
+      "tier": "Business",
+      "schedule": "14:00 daily + on-demand",
+      "responsibilities": ["API integration", "Bug fixes", "Automation debugging"],
+      "integrations": ["GitHub", "Zapier", "Supabase", "Claude API"]
     },
     {
       "id": "aninha",
       "nome": "ANINHA",
-      "role": "E-mail Marketing · Nutrição · Reativação de Leads",
-      "provider": "gemini"
+      "role": "Email Marketing · Campaigns · Reactivation · Newsletter",
+      "provider": "gemini",
+      "tier": "Community",
+      "schedule": "20:00 daily",
+      "responsibilities": ["Email campaigns", "Reactivation sequences", "Newsletter"],
+      "integrations": ["Email API", "Zapier", "Supabase"]
     },
     {
       "id": "jonny",
       "nome": "JONNY",
-      "role": "Comunidade · Engajamento · Trends · Interação",
-      "provider": "gemini"
+      "role": "Community Manager · DM Response · Engagement · Sentiment",
+      "provider": "gemini",
+      "tier": "Community",
+      "schedule": "20:00 daily",
+      "responsibilities": ["Comment moderation", "DM response", "Engagement"],
+      "integrations": ["Instagram API", "Facebook API", "Zapier"]
     }
-  ]
+  ],
+
+  "kpis": {
+    "luxi": {
+      "target_leads_per_month": 5000,
+      "target_leads_per_day": 166,
+      "target_trials": 250,
+      "target_paid_conversions": 50,
+      "target_monthly_revenue": "R$ 2,950"
+    },
+    "shopee": {
+      "target_daily_clicks": 100,
+      "target_click_to_purchase": "2%",
+      "target_roi": "3x"
+    }
+  },
+
+  "infrastructure": {
+    "supabase": {
+      "url": "https://eraxjtfedswksiyigasf.supabase.co",
+      "project": "lumi",
+      "region": "São Paulo"
+    },
+    "zapier": {
+      "skills": 17,
+      "status": "ACTIVE"
+    },
+    "claude": {
+      "model": "claude-sonnet-4-6",
+      "agents": ["HECTOR_BONILHA"]
+    }
+  }
 }
